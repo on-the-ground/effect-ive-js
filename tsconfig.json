@@ -1,0 +1,22 @@
+
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "ESNext",
+    "moduleResolution": "Node",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,              // 개발 시엔 파일 안 만들고 타입 체크만
+    "baseUrl": "./src",
+    "paths": {
+      "@core/*": ["core/*"],
+      "@effects/*": ["effects/*"]
+    }
+  },
+  "include": ["src"],
+  "exclude": ["test", "dist"]
+}
