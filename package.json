@@ -16,5 +16,12 @@
   },
   "files": [
     "dist"
-  ]
+  ],
+  "devDependencies": {
+    "vitest": "^3.2.3"
+  },
+  "dependencies": {
+    "@on-the-ground/daemonizer": "^0.0.10",
+    "zod": "^3.25.67"
+  }
 }

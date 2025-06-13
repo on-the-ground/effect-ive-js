@@ -1,10 +1,20 @@
 
 {
   "compilerOptions": {
+    "noImplicitThis": true,
+    "strictPropertyInitialization": true,
+    "strictBuiltinIteratorReturn": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "strictBindCallApply": true,
+    "strictFunctionTypes": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
     "target": "ES2020",
+    "experimentalDecorators": true,
     "module": "ESNext",
     "moduleResolution": "Node",
-    "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
