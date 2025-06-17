@@ -1,11 +1,11 @@
-import { EventHandler } from "@on-the-ground/daemonizer";
+import { Daemon } from "@on-the-ground/daemonizer";
 
 export const SIGNAL_KEY = Symbol("effect-signal");
 
 // EffectContext<K> is a map from string keys to effect handlers, with a reserved `signal` field.
 // K should be a literal union of effect names to ensure type safety.
 export type EffectHandlers<K extends string> = {
-  [key in K]: EventHandler<any>;
+  [key in K]: Daemon<any>;
 };
 export type EffectContext<K extends string> =
   | {
@@ -15,7 +15,7 @@ export type EffectContext<K extends string> =
       [SIGNAL_KEY]?: AbortSignal;
     } & EffectHandlers<K>);
 
-export type Payload<R> = {
+export type Resolvable<R> = {
   resolve: (value: R | PromiseLike<R>) => void;
 };
 
@@ -23,10 +23,10 @@ export type Payload<R> = {
 export type ExtendContext<
   Prev,
   N extends string,
-  P extends Payload<R>,
+  P extends Resolvable<R>,
   R
 > = Prev & {
-  [K in N]: EventHandler<P>;
+  [K in N]: Daemon<P>;
 };
 
 // A truly empty context (compile-time guarantee)
@@ -45,12 +45,12 @@ export function withSignal<K extends string>(
 export const registerHandlerOnContext = <
   PCtx extends EffectContext<string>,
   N extends string,
-  P extends Payload<R>,
+  P extends Resolvable<R>,
   R
 >(
   ctx: PCtx,
   name: N,
-  handler: EventHandler<P>
+  handler: Daemon<P>
 ): ExtendContext<PCtx, N, P, R> => {
   const clone = cloneContext(ctx);
   clone[name] = handler;

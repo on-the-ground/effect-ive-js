@@ -1,8 +1,8 @@
-import { EventHandler } from "@on-the-ground/daemonizer";
+import { Daemon } from "@on-the-ground/daemonizer";
 import {
   EffectContext,
   ExtendContext,
-  Payload,
+  Resolvable,
   registerHandlerOnContext,
   SIGNAL_KEY,
 } from "./effect_context";
@@ -15,7 +15,7 @@ export type EffectfulFn<
 
 export async function withEffectHandler<
   N extends string,
-  P extends Payload<R>,
+  P extends Resolvable<R>,
   R,
   PCtx extends EffectContext<string>,
   Output
@@ -27,7 +27,7 @@ export async function withEffectHandler<
   effectfulThunk: (ctx: ExtendContext<PCtx, N, P, R>) => Promise<Output>
 ): Promise<Output> {
   if (!pctx[SIGNAL_KEY]) throw new Error("Missing AbortSignal in context.");
-  const handler = new EventHandler(pctx[SIGNAL_KEY], handleEvent, 10);
+  const handler = new Daemon(pctx[SIGNAL_KEY], handleEvent, 10);
   const ctxWithHandler = registerHandlerOnContext<PCtx, N, P, R>(
     pctx,
     effectName,
@@ -41,14 +41,14 @@ export async function withEffectHandler<
   }
 }
 
-export type PayloadBuilder<P extends Payload<any>> = (
+export type PayloadBuilder<P extends Resolvable<any>> = (
   resolve: P["resolve"]
 ) => P;
 
 export async function performEffect<
   Ctx extends ExtendContext<EffectContext<string>, N, P, R>,
   N extends string,
-  P extends Payload<R>,
+  P extends Resolvable<R>,
   R
 >(ctx: Ctx, name: N, payloadBuilder: PayloadBuilder<P>): Promise<R> {
   return new Promise(async (resolve) => {
