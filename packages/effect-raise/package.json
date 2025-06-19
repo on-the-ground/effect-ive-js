@@ -1,0 +1,42 @@
+{
+  "name": "@on-the-ground/effect-raise",
+  "version": "0.0.8",
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "./dist/index.d.ts",
+    "./dist/index.cjs",
+    "./dist/index.mjs",
+    "./LICENSE"
+  ],
+  "scripts": {
+    "clean": "rm -rf dist",
+    "build": "yarn clean && rollup -c",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@on-the-ground/effect": "^0.0.7"
+  },
+  "devDependencies": {
+    "@on-the-ground/daemonizer": "^0.0.15",
+    "@rollup/plugin-typescript": "^12.1.4",
+    "rollup": "^4.44.1",
+    "rollup-plugin-dts": "^6.2.1",
+    "typescript": "^5.8.3",
+    "vitest": "^3.2.4"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/on-the-ground/effect-ive-js",
+    "directory": "packages/effect-raise"
+  }
+}

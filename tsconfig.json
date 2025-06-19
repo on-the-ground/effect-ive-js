@@ -1,6 +1,6 @@
-
 {
   "compilerOptions": {
+    "strict": true,
     "noImplicitThis": true,
     "strictPropertyInitialization": true,
     "strictBuiltinIteratorReturn": true,
@@ -19,14 +19,16 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
-    "isolatedModules": true,
-    "noEmit": true,              // 개발 시엔 파일 안 만들고 타입 체크만
-    "baseUrl": "./src",
+    "verbatimModuleSyntax": true,
+    "baseUrl": ".",
     "paths": {
-      "@core/*": ["core/*"],
-      "@effects/*": ["effects/*"]
-    }
+      "@internal/*": ["internal/*"]
+    },
+    "lib": ["es2020", "dom"]
   },
-  "include": ["src"],
-  "exclude": ["test", "dist"]
+  "files": [],
+  "references": [
+    { "path": "./packages/effect" },
+    { "path": "./packages/effect-raise" }
+  ]
 }
