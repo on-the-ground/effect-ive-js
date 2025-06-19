@@ -1,27 +1,15 @@
 {
-  "name": "effect-ive-typescript",
-  "type": "commonjs",
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
-  "exports": {
-    ".": {
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs",
-      "types": "./dist/index.d.ts"
-    }
-  },
-  "scripts": {
-    "build": "tsc -p tsconfig.build.json",
-    "test": "vitest run"
-  },
-  "files": [
-    "dist"
+  "name": "effect-ive-js",
+  "private": true,
+  "workspaces": [
+    "packages/*"
   ],
-  "devDependencies": {
-    "vitest": "^3.2.3"
+  "scripts": {
+    "build": "yarn workspace @on-the-ground/effect-core build && yarn workspace @on-the-ground/effect-raise build && yarn workspace @on-the-ground/tableizable build",
+    "test": "vitest"
   },
-  "dependencies": {
-    "@on-the-ground/daemonizer": "^0.0.12",
-    "zod": "^3.25.67"
+  "devDependencies": {
+    "typescript": "^5.8.3",
+    "vitest": "^3.2.4"
   }
 }

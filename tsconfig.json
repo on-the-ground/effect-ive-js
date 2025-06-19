@@ -1,4 +1,3 @@
-
 {
   "compilerOptions": {
     "noImplicitThis": true,
@@ -20,13 +19,17 @@
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "noEmit": true,              // 개발 시엔 파일 안 만들고 타입 체크만
-    "baseUrl": "./src",
+    "verbatimModuleSyntax": true,
+    "noEmit": true,
+    "baseUrl": ".",
     "paths": {
-      "@core/*": ["core/*"],
-      "@effects/*": ["effects/*"]
+      "@internal/*": ["internal/*"]
     }
   },
-  "include": ["src"],
-  "exclude": ["test", "dist"]
+  "files": [],
+  "references": [
+    { "path": "./packages/effect-core" },
+    { "path": "./packages/effect-raise" },
+    { "path": "./packages/tableizable" }
+  ]
 }
