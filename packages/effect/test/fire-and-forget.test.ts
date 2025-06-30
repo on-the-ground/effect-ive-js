@@ -3,11 +3,7 @@ import {
   withFireAndForgetEffectHandler,
   fireAndForgetEffect,
 } from "../src/fire-and-forget-effect";
-import {
-  _withSignal,
-  emptyContext,
-  withSignal,
-} from "../../internal/effect_context";
+import { emptyContext, withSignal } from "../src/effect_context";
 
 describe("fireAndForgetEffect", () => {
   it("should process pushed event with the handler", async () => {

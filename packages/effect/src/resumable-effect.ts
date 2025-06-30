@@ -3,9 +3,8 @@ import {
   mustHaveHandler,
   mustHaveSignal,
   registerHandlerOnContext,
-  type EffectContext,
   type EffectContextWithSignal,
-} from "../../internal/effect_context";
+} from "./effect_context";
 
 /**
  * An object that carries a resolve function, used to resume control flow.
@@ -27,11 +26,15 @@ export type Resolvable<R> = {
  * @param effectfulThunk An effectful computation that may perform the resumable effect
  * @param teardown Optional teardown logic to run after the effectful thunk completes
  */
-export async function withResumableEffectHandler<N extends string, P>(
-  pctx: EffectContextWithSignal<Record<string, any>>,
+export async function withResumableEffectHandler<
+  PCtx extends EffectContextWithSignal,
+  N extends string,
+  P
+>(
+  pctx: PCtx,
   effectName: N,
   handleEvent: (signal: AbortSignal, payload: P) => Promise<void>,
-  effectfulThunk: (ctx: EffectContext<{ [K in N]: P }>) => Promise<void>,
+  effectfulThunk: (ctx: PCtx & { [K in N]: Daemon<P> }) => Promise<void>,
   teardown?: () => void
 ): Promise<void> {
   const signal = mustHaveSignal(pctx);
@@ -71,7 +74,7 @@ export async function performEffect<
   P extends Resolvable<R>,
   R
 >(
-  ctx: EffectContext<{ [K in N]: P }>,
+  ctx: { [K in N]: Daemon<P> },
   name: N,
   payloadBuilder: ResolvableBuilder<P>
 ): Promise<R> {

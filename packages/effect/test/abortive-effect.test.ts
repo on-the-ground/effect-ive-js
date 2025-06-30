@@ -1,11 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
 import { withAbortiveEffectHandler, abortEffect } from "../src/abortive-effect";
-import {
-  _registerHandlerOnContext,
-  _withSignal,
-  emptyContext,
-  withSignal,
-} from "../../internal/effect_context";
+import { emptyContext, withSignal } from "../src/effect_context";
 
 describe("withAbortiveEffectHandler", () => {
   it("should call handler and abort after first event", async () => {
@@ -14,16 +9,16 @@ describe("withAbortiveEffectHandler", () => {
     const signal = new AbortController().signal;
     const ctxWithSignal = withSignal(signal, emptyContext);
 
-    withSignal(signal, emptyContext);
+    const effName = "testEffect" as const;
 
     await withAbortiveEffectHandler(
       ctxWithSignal,
-      "testEffect",
+      effName,
       async (signal, payload: any) => {
         calls.push({ signal, payload });
       },
       async (ctx) => {
-        await abortEffect(ctx, "testEffect", "hello");
+        await abortEffect(ctx, effName, "hello");
       }
     );
 

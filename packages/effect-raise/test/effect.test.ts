@@ -1,10 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { withRaiseEffectHandler, raiseEffect } from "../src/effect";
-import {
-  withSignal,
-  emptyContext,
-  type EffectContextWithSignal,
-} from "@on-the-ground/effect";
+import { withSignal, emptyContext } from "@on-the-ground/effect";
 
 describe("withRaiseEffectHandler", () => {
   it("should return void when no error is raised", async () => {

@@ -3,9 +3,8 @@ import {
   mustHaveHandler,
   mustHaveSignal,
   registerHandlerOnContext,
-  type EffectContext,
   type EffectContextWithSignal,
-} from "../../internal/effect_context";
+} from "./effect_context";
 
 /**
  * Registers an abortive effect handler into the given context, executes the provided
@@ -26,11 +25,15 @@ import {
  *
  * @returns A Promise that resolves after the effectfulThunk has completed or been aborted
  */
-export async function withAbortiveEffectHandler<N extends string, P>(
-  pctx: EffectContextWithSignal<Record<string, any>>,
+export async function withAbortiveEffectHandler<
+  PCtx extends EffectContextWithSignal,
+  N extends string,
+  P
+>(
+  pctx: PCtx,
   effectName: N,
   handleEvent: (signal: AbortSignal, payload: P) => Promise<void>,
-  effectfulThunk: (ctx: EffectContext<{ [K in N]: P }>) => Promise<void>,
+  effectfulThunk: (ctx: PCtx & { [K in N]: Daemon<P> }) => Promise<void>,
   teardown?: () => void
 ): Promise<void> {
   const controller = new AbortController();
@@ -48,7 +51,13 @@ export async function withAbortiveEffectHandler<N extends string, P>(
     },
     10
   );
-  const ctxWithHandler = registerHandlerOnContext(effectName, handler, pctx);
+
+  const ctxWithHandler = registerHandlerOnContext<PCtx, N, P>(
+    effectName,
+    handler,
+    pctx
+  );
+
   try {
     await effectfulThunk(ctxWithHandler);
   } finally {
@@ -71,10 +80,10 @@ export async function withAbortiveEffectHandler<N extends string, P>(
  * @returns A Promise that resolves once the handler has processed the event
  */
 export async function abortEffect<N extends string, P>(
-  ctx: EffectContext<{ [K in N]: P }>,
+  ctx: { [K in N]: Daemon<P> },
   name: N,
   payload: P
-) {
+): Promise<void> {
   const handler = mustHaveHandler(ctx, name);
   await handler.pushEvent(payload);
 }

@@ -1,9 +1,10 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
+    "types": ["vitest"],
     "composite": true,
     "outDir": "dist",
-    "rootDir": "src",
+    "rootDir": "../",
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
@@ -13,5 +14,5 @@
     "allowSyntheticDefaultImports": true,
     "noEmit": false
   },
-  "include": ["src/**/*.ts"]
+  "include": ["src/**/*.ts", "../internal/**/*.ts"]
 }

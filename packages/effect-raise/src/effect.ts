@@ -1,8 +1,8 @@
+import type { Daemon } from "@on-the-ground/daemonizer";
 import {
   withAbortiveEffectHandler,
   abortEffect,
   type EffectContextWithSignal,
-  type EffectContext,
 } from "@on-the-ground/effect";
 
 const effectName = "effect_raise" as const;
@@ -25,11 +25,14 @@ const effectName = "effect_raise" as const;
  *   - `void` if the computation completed without raising,
  *   - or the raised error of type `E`.
  */
-export async function withRaiseEffectHandler<E extends Error>(
-  pctx: EffectContextWithSignal<any>,
-  effectfulThunk: (
-    ctx: EffectContext<{ [K in typeof effectName]: E }>
-  ) => Promise<void>
+export async function withRaiseEffectHandler<
+  PCtx extends EffectContextWithSignal,
+  E extends Error
+>(
+  pctx: PCtx,
+  effectfulThunk: (ctx: {
+    [K in typeof effectName]: Daemon<E>;
+  }) => Promise<void>
 ): Promise<Result<E>> {
   let resolve: (value: E | PromiseLike<E>) => void;
   const errPromise = new Promise<E>((r) => (resolve = r));
@@ -54,9 +57,9 @@ export async function withRaiseEffectHandler<E extends Error>(
  * @returns A Promise that resolves when the effect is handled.
  */
 export async function raiseEffect<E extends Error>(
-  ctx: EffectContext<{ [K in typeof effectName]: E }>,
+  ctx: { [K in typeof effectName]: Daemon<E> },
   err: E
-) {
+): Promise<void> {
   return abortEffect(ctx, effectName, err);
 }
 

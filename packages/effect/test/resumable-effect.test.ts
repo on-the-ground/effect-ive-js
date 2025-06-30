@@ -4,7 +4,7 @@ import {
   performEffect,
   type Resolvable,
 } from "../src/resumable-effect";
-import { emptyContext, withSignal } from "../../internal/effect_context";
+import { emptyContext, withSignal } from "../src/effect_context";
 
 describe("withResumableEffectHandler + performEffect", () => {
   it("should perform effect and resolve with expected value", async () => {

@@ -3,9 +3,8 @@ import {
   mustHaveHandler,
   mustHaveSignal,
   registerHandlerOnContext,
-  type EffectContext,
   type EffectContextWithSignal,
-} from "../../internal/effect_context";
+} from "./effect_context";
 
 /**
  * Registers a "fire-and-forget" style effect handler in the given context,
@@ -21,11 +20,15 @@ import {
  * @param teardown - (Optional) A cleanup function to run after the thunk completes.
  */
 
-export async function withFireAndForgetEffectHandler<N extends string, P>(
-  pctx: EffectContextWithSignal<Record<string, any>>,
+export async function withFireAndForgetEffectHandler<
+  PCtx extends EffectContextWithSignal,
+  N extends string,
+  P
+>(
+  pctx: PCtx,
   effectName: N,
   handleEvent: (signal: AbortSignal, payload: P) => Promise<void>,
-  effectfulThunk: (ctx: EffectContext<{ [K in N]: P }>) => Promise<void>,
+  effectfulThunk: (ctx: PCtx & { [K in N]: Daemon<P> }) => Promise<void>,
   teardown?: () => void
 ): Promise<void> {
   const signal = mustHaveSignal(pctx);
@@ -51,7 +54,7 @@ export async function withFireAndForgetEffectHandler<N extends string, P>(
  * @param payload - The payload to push to the effect handler.
  */
 export async function fireAndForgetEffect<N extends string, P>(
-  ctx: EffectContext<{ [K in N]: P }>,
+  ctx: { [K in N]: Daemon<P> },
   name: N,
   payload: P
 ): Promise<void> {

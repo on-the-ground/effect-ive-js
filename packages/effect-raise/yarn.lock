@@ -153,20 +153,12 @@
   dependencies:
     tslib "^2.8.1"
 
-"@on-the-ground/effect@^0.0.1":
-  version "0.0.1"
-  resolved "https://registry.yarnpkg.com/@on-the-ground/effect/-/effect-0.0.1.tgz#1e93844baf282352a87e355e557f0e9f75aafbc4"
-  integrity sha512-rpGamWQvT73PwbCE8XYKo94mIT5y/iLE4z153iwYQ8B4kKNoiVePNsP9dCLNWS91UVvCtO2XNe5K/lz+WfCh4w==
+"@on-the-ground/effect@^0.0.11":
+  version "0.0.11"
+  resolved "https://registry.yarnpkg.com/@on-the-ground/effect/-/effect-0.0.11.tgz#bf94196da9070d99cf0a4663ca726a242f81a573"
+  integrity sha512-z5Zz4akbFpBrkRrAM+O180jc8bdtZkEZtGviSk8MtGZbrCUus0mY941Fk48goI+dDXBhtZyZuSwO+MjaaVVBUw==
   dependencies:
     "@on-the-ground/daemonizer" "^0.0.15"
-
-"@on-the-ground/effect@^0.0.4":
-  version "0.0.4"
-  resolved "https://registry.yarnpkg.com/@on-the-ground/effect/-/effect-0.0.4.tgz#e6280d255d9b1eedd1f5adce6dc7b5e16b3b7c3c"
-  integrity sha512-RumiZyzxAMj5uimFueAKhh10NwdUpA5xkh4S8EKcLqGHwV6jWlvzxu++rnJ+MDAr4KZLHrcfeSgBdD/7hP6DEQ==
-  dependencies:
-    "@on-the-ground/daemonizer" "^0.0.15"
-    "@on-the-ground/effect" "^0.0.1"
 
 "@rollup/plugin-typescript@^12.1.4":
   version "12.1.4"

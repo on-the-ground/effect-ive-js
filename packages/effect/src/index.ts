@@ -6,8 +6,5 @@ export {
   mustHaveSignal,
   withSignal,
   emptyContext,
-} from "../../internal/effect_context";
-export type {
-  EffectContext,
-  EffectContextWithSignal,
-} from "../../internal/effect_context";
+  type EffectContextWithSignal,
+} from "./effect_context";
