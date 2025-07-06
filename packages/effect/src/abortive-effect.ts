@@ -1,7 +1,6 @@
-import { Daemon, mergeAbortSignals } from "@on-the-ground/daemonizer";
+import { Daemon, mergeAbortSignal } from "@on-the-ground/daemonizer";
 import {
   mustHaveHandler,
-  mustHaveSignal,
   registerHandlerOnContext,
   type EffectContextWithSignal,
 } from "./effect_context";
@@ -32,21 +31,17 @@ export async function withAbortiveEffectHandler<
 >(
   pctx: PCtx,
   effectName: N,
-  handleEvent: (signal: AbortSignal, payload: P) => Promise<void>,
-  effectfulThunk: (ctx: PCtx & { [K in N]: Daemon<P> }) => Promise<void>,
+  handleEvent: (ctx: PCtx, payload: P) => Promise<void>,
+  effectfulThunk: (ctx: PCtx & { [K in N]: Daemon<P, PCtx> }) => Promise<void>,
   teardown?: () => void
 ): Promise<void> {
   const controller = new AbortController();
-  const parentSignal = mustHaveSignal(pctx);
-  const mergedSignal: AbortSignal = mergeAbortSignals([
-    controller.signal,
-    parentSignal,
-  ]);
+  const mergedSignal = mergeAbortSignal(controller.signal, pctx);
 
   const handler = new Daemon(
     mergedSignal,
-    async (signal: AbortSignal, payload: P) => {
-      await handleEvent(signal, payload);
+    async (pctx, payload: P) => {
+      await handleEvent(pctx, payload);
       controller.abort();
     },
     10
@@ -80,7 +75,7 @@ export async function withAbortiveEffectHandler<
  * @returns A Promise that resolves once the handler has processed the event
  */
 export async function abortEffect<N extends string, P>(
-  ctx: { [K in N]: Daemon<P> },
+  ctx: { [K in N]: Daemon<P, any> },
   name: N,
   payload: P
 ): Promise<void> {

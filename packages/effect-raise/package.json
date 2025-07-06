@@ -1,6 +1,6 @@
 {
   "name": "@on-the-ground/effect-raise",
-  "version": "0.0.10",
+  "version": "0.0.11",
   "license": "MIT",
   "type": "module",
   "exports": {
@@ -24,12 +24,12 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@on-the-ground/effect": "^0.0.11"
+    "@on-the-ground/effect": "^0.0.12"
   },
   "devDependencies": {
-    "@on-the-ground/daemonizer": "^0.0.15",
+    "@on-the-ground/daemonizer": "^0.0.18",
     "@rollup/plugin-typescript": "^12.1.4",
-    "rollup": "^4.44.1",
+    "rollup": "^4.44.2",
     "rollup-plugin-dts": "^6.2.1",
     "typescript": "^5.8.3",
     "vitest": "^3.2.4"

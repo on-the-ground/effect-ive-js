@@ -4,17 +4,23 @@ import {
   performEffect,
   type Resolvable,
 } from "../src/resumable-effect";
-import { emptyContext, withSignal } from "../src/effect_context";
+import {
+  type EffectContextWithSignal,
+  emptyContext,
+  withSignal,
+} from "../src/effect_context";
 
 describe("withResumableEffectHandler + performEffect", () => {
   it("should perform effect and resolve with expected value", async () => {
     type Payload = Resolvable<string> & { message: string };
 
-    const handler = vi.fn(async (_signal: AbortSignal, payload: Payload) => {
-      setTimeout(() => {
-        payload.resolve("hello " + payload.message);
-      }, 10);
-    });
+    const handler = vi.fn(
+      async (_signal: EffectContextWithSignal, payload: Payload) => {
+        setTimeout(() => {
+          payload.resolve("hello " + payload.message);
+        }, 10);
+      }
+    );
     const ctxWithSignal = withSignal(
       new AbortController().signal,
       emptyContext
@@ -40,7 +46,7 @@ describe("withResumableEffectHandler + performEffect", () => {
     const teardownSpy = vi.fn();
 
     const handler = vi.fn(
-      async (_signal: AbortSignal, payload: Resolvable<number>) => {
+      async (_signal: EffectContextWithSignal, payload: Resolvable<number>) => {
         payload.resolve(42);
       }
     );

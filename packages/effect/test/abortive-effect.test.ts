@@ -14,8 +14,8 @@ describe("withAbortiveEffectHandler", () => {
     await withAbortiveEffectHandler(
       ctxWithSignal,
       effName,
-      async (signal, payload: any) => {
-        calls.push({ signal, payload });
+      async (sigSrc, payload: any) => {
+        calls.push({ sigSrc, payload });
       },
       async (ctx) => {
         await abortEffect(ctx, effName, "hello");

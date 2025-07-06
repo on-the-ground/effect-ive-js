@@ -1,8 +1,7 @@
 import type { Daemon } from "@on-the-ground/daemonizer";
+import { SIGNAL_KEY } from "@on-the-ground/daemonizer";
 
-const SIGNAL_KEY = Symbol("effect-signal");
-
-export type EffectContextWithSignal = Record<string, Daemon<any>> & {
+export type EffectContextWithSignal = Record<string, Daemon<any, any>> & {
   [SIGNAL_KEY]: AbortSignal;
 };
 
@@ -35,21 +34,27 @@ export function withSignal<Ctx extends object>(
 }
 
 /**
- * Adds a new effect handler to the context.
+ * Registers a named effect handler in the given context.
+ * The resulting context includes the new handler in addition to the existing ones.
  */
-export function registerHandlerOnContext<Ctx, N extends string, P>(
+export function registerHandlerOnContext<
+  Ctx extends EffectContextWithSignal,
+  N extends string,
+  P
+>(
   name: N,
-  handler: Daemon<P>,
+  handler: Daemon<P, Ctx>,
   ctx: Ctx
-): Ctx & { [K in N]: Daemon<P> } {
+): Ctx & { [K in N]: Daemon<P, Ctx> } {
   return {
     ...ctx,
     [name]: handler,
-  } as Ctx & { [K in N]: Daemon<P> };
+  } as Ctx & { [K in N]: Daemon<P, Ctx> };
 }
 
 /**
- * Clones the given effect context.
+ * Returns a shallow clone of the given context using prototype inheritance.
+ * This allows effect handler fallback from outer scopes when a key is missing.
  */
 function cloneContext<T extends object | null>(ctx: T): T {
   return Object.create(ctx);
@@ -59,13 +64,13 @@ function cloneContext<T extends object | null>(ctx: T): T {
  * Retrieves the handler for the given effect name.
  */
 export function mustHaveHandler<N extends string, P>(
-  ctx: { [K in N]: Daemon<P> },
+  ctx: { [K in N]: Daemon<P, any> },
   name: N
-): Daemon<P> {
+): Daemon<P, any> {
   const handler = ctx[name];
   if (!handler) {
     throw new Error(
-      "Missing AbortSignal in context. Use withSignal to attach one."
+      `No handler registered for effect "${name}". Use registerHandlerOnContext(...) to attach one.`
     );
   }
   return handler;

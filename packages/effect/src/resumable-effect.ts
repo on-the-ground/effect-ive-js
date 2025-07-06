@@ -1,7 +1,6 @@
 import { Daemon } from "@on-the-ground/daemonizer";
 import {
   mustHaveHandler,
-  mustHaveSignal,
   registerHandlerOnContext,
   type EffectContextWithSignal,
 } from "./effect_context";
@@ -33,12 +32,11 @@ export async function withResumableEffectHandler<
 >(
   pctx: PCtx,
   effectName: N,
-  handleEvent: (signal: AbortSignal, payload: P) => Promise<void>,
-  effectfulThunk: (ctx: PCtx & { [K in N]: Daemon<P> }) => Promise<void>,
+  handleEvent: (ctx: PCtx, payload: P) => Promise<void>,
+  effectfulThunk: (ctx: PCtx & { [K in N]: Daemon<P, PCtx> }) => Promise<void>,
   teardown?: () => void
 ): Promise<void> {
-  const signal = mustHaveSignal(pctx);
-  const handler = new Daemon(signal, handleEvent, 10);
+  const handler = new Daemon(pctx, handleEvent, 10);
   const ctxWithHandler = registerHandlerOnContext(effectName, handler, pctx);
   try {
     return await effectfulThunk(ctxWithHandler);
@@ -74,7 +72,7 @@ export async function performEffect<
   P extends Resolvable<R>,
   R
 >(
-  ctx: { [K in N]: Daemon<P> },
+  ctx: { [K in N]: Daemon<P, any> },
   name: N,
   payloadBuilder: ResolvableBuilder<P>
 ): Promise<R> {

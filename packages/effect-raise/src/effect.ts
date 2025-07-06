@@ -31,12 +31,12 @@ export async function withRaiseEffectHandler<
 >(
   pctx: PCtx,
   effectfulThunk: (ctx: {
-    [K in typeof effectName]: Daemon<E>;
+    [K in typeof effectName]: Daemon<E, PCtx>;
   }) => Promise<void>
 ): Promise<Result<E>> {
   let resolve: (value: E | PromiseLike<E>) => void;
   const errPromise = new Promise<E>((r) => (resolve = r));
-  const handleEvent = async (_: AbortSignal, error: E): Promise<void> =>
+  const handleEvent = async (_: PCtx, error: E): Promise<void> =>
     resolve(error);
 
   return await Promise.race([
@@ -57,7 +57,7 @@ export async function withRaiseEffectHandler<
  * @returns A Promise that resolves when the effect is handled.
  */
 export async function raiseEffect<E extends Error>(
-  ctx: { [K in typeof effectName]: Daemon<E> },
+  ctx: { [K in typeof effectName]: Daemon<E, any> },
   err: E
 ): Promise<void> {
   return abortEffect(ctx, effectName, err);
