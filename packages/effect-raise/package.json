@@ -1,6 +1,6 @@
 {
   "name": "@on-the-ground/effect-raise",
-  "version": "0.0.11",
+  "version": "0.0.12",
   "license": "MIT",
   "type": "module",
   "exports": {
@@ -24,7 +24,7 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@on-the-ground/effect": "^0.0.12"
+    "@on-the-ground/effect": "^0.0.13"
   },
   "devDependencies": {
     "@on-the-ground/daemonizer": "^0.0.18",

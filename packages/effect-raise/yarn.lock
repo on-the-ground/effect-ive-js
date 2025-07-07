@@ -153,10 +153,10 @@
   dependencies:
     tslib "^2.8.1"
 
-"@on-the-ground/effect@^0.0.12":
-  version "0.0.12"
-  resolved "https://registry.yarnpkg.com/@on-the-ground/effect/-/effect-0.0.12.tgz#029538a9623bfc51caef47793b0e313bceace3ff"
-  integrity sha512-mM88jekNP9VzlYu7oSF+W8NamrANeIFIULeHf3lwrML2te8v7zZDWg/DiDPmVxiodi93xF5LPU5KzrFbwHTdoA==
+"@on-the-ground/effect@^0.0.13":
+  version "0.0.13"
+  resolved "https://registry.yarnpkg.com/@on-the-ground/effect/-/effect-0.0.13.tgz#b384c1f6fe085f177810fafe71a526ddb2e19182"
+  integrity sha512-pt2+7y36o5NHGo84fRZO77VocrsOtZ4efRRacSu5++LmOPaXiLUcUivv7d1AghvfCR+HhR0hZawecvkktV+7kQ==
   dependencies:
     "@on-the-ground/daemonizer" "^0.0.18"
 

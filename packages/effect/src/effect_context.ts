@@ -6,17 +6,6 @@ export type EffectContextWithSignal = Record<string, Daemon<any, any>> & {
 };
 
 /**
- * Retrieves the AbortSignal from the context, or throws if missing.
- */
-export function mustHaveSignal(ctx: {
-  [SIGNAL_KEY]: AbortSignal;
-}): AbortSignal {
-  const signal = ctx[SIGNAL_KEY];
-  if (!signal) throw new Error("Missing AbortSignal in context.");
-  return signal;
-}
-
-/**
  * An empty effect context.
  */
 export const emptyContext: {} = {};
@@ -24,13 +13,13 @@ export const emptyContext: {} = {};
 /**
  * Returns a new context with the given AbortSignal attached.
  */
-export function withSignal<Ctx extends object>(
+export function withSignal<PCtx extends object>(
   signal: AbortSignal,
-  ctx: Ctx
-): Ctx & { [SIGNAL_KEY]: AbortSignal } {
-  const clone = cloneContext(ctx) as Ctx & { [SIGNAL_KEY]: AbortSignal };
-  clone[SIGNAL_KEY] = signal;
-  return clone;
+  pctx: PCtx
+): PCtx & { [SIGNAL_KEY]: AbortSignal } {
+  const ctx = cloneContext(pctx) as PCtx & { [SIGNAL_KEY]: AbortSignal };
+  ctx[SIGNAL_KEY] = signal;
+  return ctx;
 }
 
 /**
@@ -38,18 +27,17 @@ export function withSignal<Ctx extends object>(
  * The resulting context includes the new handler in addition to the existing ones.
  */
 export function registerHandlerOnContext<
-  Ctx extends EffectContextWithSignal,
+  PCtx extends EffectContextWithSignal,
   N extends string,
   P
 >(
   name: N,
-  handler: Daemon<P, Ctx>,
-  ctx: Ctx
-): Ctx & { [K in N]: Daemon<P, Ctx> } {
-  return {
-    ...ctx,
-    [name]: handler,
-  } as Ctx & { [K in N]: Daemon<P, Ctx> };
+  handler: Daemon<P, PCtx>,
+  pctx: PCtx
+): PCtx & { [K in N]: Daemon<P, PCtx> } {
+  const ctx = cloneContext(pctx) as PCtx & { [K in N]: Daemon<P, PCtx> };
+  (ctx as Record<N, Daemon<P, PCtx>>)[name] = handler;
+  return ctx;
 }
 
 /**
