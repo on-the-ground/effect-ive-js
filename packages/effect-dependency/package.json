@@ -1,6 +1,6 @@
 {
-  "name": "@on-the-ground/effect",
-  "version": "0.0.16",
+  "name": "@on-the-ground/effect-dependency",
+  "version": "0.0.2",
   "license": "MIT",
   "type": "module",
   "exports": {
@@ -20,22 +20,26 @@
   ],
   "scripts": {
     "clean": "rm -rf dist",
-    "build": "yarn clean && rollup -c && rm -rf dist/internal dist/effect",
-    "test": "vitest run"
+    "build": "yarn clean && rollup -c && rm -rf dist/internal dist/effect-dependency",
+    "test": "jest"
   },
   "dependencies": {
-    "@on-the-ground/daemonizer": "^0.0.18"
+    "@on-the-ground/effect": "^0.0.16",
+    "@on-the-ground/quackquack": "^0.0.12"
   },
   "devDependencies": {
+    "@on-the-ground/daemonizer": "^0.0.18",
     "@rollup/plugin-typescript": "^12.1.4",
-    "rollup": "^4.45.3",
+    "jest": "^30.0.5",
+    "rollup": "^4.46.0",
     "rollup-plugin-dts": "^6.2.1",
-    "typescript": "^5.8.3",
-    "vitest": "^3.2.4"
+    "ts-jest": "^29.4.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/on-the-ground/effect-ive-js",
-    "directory": "packages/effect"
+    "directory": "packages/effect-dependency"
   }
 }
