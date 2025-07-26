@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect } from "@jest/globals";
 import { withRaiseEffectHandler, raiseEffect } from "../src/effect";
 import { withSignal, emptyContext } from "@on-the-ground/effect";
 
@@ -6,7 +6,7 @@ describe("withRaiseEffectHandler", () => {
   it("should return void when no error is raised", async () => {
     const result = await withRaiseEffectHandler(
       withSignal(new AbortController().signal, emptyContext),
-      async (ctx) => {}
+      async () => {}
     );
     expect(result).toBeUndefined();
   });
@@ -56,14 +56,14 @@ describe("raiseEffect across async call boundaries", () => {
   });
 
   it("should return void if no error was raised", async () => {
-    async function noRaise(ctx: any) {
+    async function noRaise() {
       await delay(10);
     }
 
     const result = await withRaiseEffectHandler(
       withSignal(new AbortController().signal, emptyContext),
-      async (ctx) => {
-        await noRaise(ctx);
+      async () => {
+        await noRaise();
       }
     );
 

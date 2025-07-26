@@ -28,12 +28,15 @@ export type Resolvable<R> = {
 export async function withResumableEffectHandler<
   PCtx extends EffectContextWithSignal,
   N extends string,
-  P
+  P,
+  R
 >(
   pctx: PCtx,
   effectName: N,
-  handleEvent: (ctx: PCtx, payload: P) => Promise<void>,
-  effectfulThunk: (ctx: PCtx & { [K in N]: Daemon<P, PCtx> }) => Promise<void>,
+  handleEvent: (ctx: PCtx, payload: P & Resolvable<R>) => Promise<void>,
+  effectfulThunk: (
+    ctx: PCtx & { [K in N]: Daemon<P & Resolvable<R>, PCtx> }
+  ) => Promise<void>,
   teardown?: () => void
 ): Promise<void> {
   const handler = new Daemon(pctx, handleEvent, 10);
@@ -47,38 +50,31 @@ export async function withResumableEffectHandler<
 }
 
 /**
- * A builder function that constructs a Resolvable payload,
- * given the resolve function.
- */
-export type ResolvableBuilder<P extends Resolvable<any>> = (
-  resolve: P["resolve"]
-) => P;
-
-/**
- * Performs a **resumable effect** by building a payload that contains a `resolve` function,
- * pushing it into the appropriate daemon, and waiting for it to be resolved.
+ * Performs a resumable effect by attaching a `resolve` function to the given payload
+ * and pushing it into the appropriate handler.
+ *
+ * The payload itself does **not** need to declare or expect a `resolve` field;
+ * it will be injected internally.
  *
  * @template N Effect name (string literal)
- * @template P Payload type with `resolve`
- * @template R Resolved result type
+ * @template P Original payload type (without `resolve`)
+ * @template R Resolved return type
  *
- * @param ctx The context containing the effect daemon
- * @param name The name of the effect to perform
- * @param payloadBuilder A builder that receives a resolve function and returns a payload
- * @returns A Promise that resolves when `resolve()` is called inside the handler
+ * @param ctx The effect context
+ * @param name The effect name to perform
+ * @param payload The payload to send (does not include `resolve`)
+ * @returns A Promise resolving with the value passed to `resolve()` by the handler
  */
-export async function performEffect<
-  N extends string,
-  P extends Resolvable<R>,
-  R
->(
-  ctx: { [K in N]: Daemon<P, any> },
+export async function performEffect<N extends string, P, R>(
+  ctx: { [K in N]: Daemon<P & Resolvable<R>, any> },
   name: N,
-  payloadBuilder: ResolvableBuilder<P>
+  payload: P
 ): Promise<R> {
-  return new Promise(async (resolve) => {
-    const payload = payloadBuilder(resolve);
+  return new Promise<R>(async (resolve) => {
     const handler = mustHaveHandler(ctx, name);
-    await handler.pushEvent(payload);
+    handler.pushEvent({
+      ...payload,
+      resolve,
+    });
   });
 }

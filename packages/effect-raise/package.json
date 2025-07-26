@@ -21,18 +21,21 @@
   "scripts": {
     "clean": "rm -rf dist",
     "build": "yarn clean && rollup -c",
-    "test": "vitest run"
+    "test": "jest"
   },
   "dependencies": {
-    "@on-the-ground/effect": "^0.0.13"
+    "@on-the-ground/effect": "^0.0.16"
   },
   "devDependencies": {
     "@on-the-ground/daemonizer": "^0.0.18",
     "@rollup/plugin-typescript": "^12.1.4",
+    "@types/node": "^24.1.0",
+    "jest": "^30.0.5",
     "rollup": "^4.44.2",
     "rollup-plugin-dts": "^6.2.1",
-    "typescript": "^5.8.3",
-    "vitest": "^3.2.4"
+    "ts-jest": "^29.4.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
   },
   "repository": {
     "type": "git",

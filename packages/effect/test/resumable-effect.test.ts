@@ -12,10 +12,13 @@ import {
 
 describe("withResumableEffectHandler + performEffect", () => {
   it("should perform effect and resolve with expected value", async () => {
-    type Payload = Resolvable<string> & { message: string };
+    type Payload = { message: string };
 
     const handler = vi.fn(
-      async (_signal: EffectContextWithSignal, payload: Payload) => {
+      async (
+        _signal: EffectContextWithSignal,
+        payload: Payload & Resolvable<string>
+      ) => {
         setTimeout(() => {
           payload.resolve("hello " + payload.message);
         }, 10);
@@ -31,10 +34,9 @@ describe("withResumableEffectHandler + performEffect", () => {
       "resumable",
       handler,
       async (ctx) => {
-        const result = await performEffect(ctx, "resumable", (resolve) => ({
-          resolve,
+        const result = await performEffect(ctx, "resumable", {
           message: "world",
-        }));
+        });
         expect(result).toBe("hello world");
       }
     );
@@ -60,9 +62,7 @@ describe("withResumableEffectHandler + performEffect", () => {
       "num",
       handler,
       async (ctx) => {
-        const result = await performEffect(ctx, "num", (resolve) => ({
-          resolve,
-        }));
+        const result = await performEffect(ctx, "num", {});
         expect(result).toBe(42);
       },
       teardownSpy

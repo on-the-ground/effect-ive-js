@@ -19,7 +19,7 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
-    "verbatimModuleSyntax": true,
+    //"verbatimModuleSyntax": true,
     "baseUrl": ".",
     "paths": {
       "@internal/*": ["internal/*"]
