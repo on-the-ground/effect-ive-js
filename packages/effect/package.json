@@ -24,11 +24,11 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@on-the-ground/daemonizer": "^0.0.18"
+    "@on-the-ground/daemonizer": "^0.0.19"
   },
   "devDependencies": {
     "@rollup/plugin-typescript": "^12.1.4",
-    "rollup": "^4.45.3",
+    "rollup": "^4.46.0",
     "rollup-plugin-dts": "^6.2.1",
     "typescript": "^5.8.3",
     "vitest": "^3.2.4"

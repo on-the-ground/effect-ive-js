@@ -28,7 +28,7 @@
     "@on-the-ground/quackquack": "^0.0.12"
   },
   "devDependencies": {
-    "@on-the-ground/daemonizer": "^0.0.18",
+    "@on-the-ground/daemonizer": "^0.0.19",
     "@rollup/plugin-typescript": "^12.1.4",
     "jest": "^30.0.5",
     "rollup": "^4.46.0",
