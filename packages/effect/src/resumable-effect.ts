@@ -27,7 +27,7 @@ export type Resolvable<R> = {
  */
 export async function withResumableEffectHandler<
   PCtx extends EffectContextWithSignal,
-  N extends string,
+  N extends symbol,
   P,
   R
 >(
@@ -65,7 +65,7 @@ export async function withResumableEffectHandler<
  * @param payload The payload to send (does not include `resolve`)
  * @returns A Promise resolving with the value passed to `resolve()` by the handler
  */
-export async function performEffect<N extends string, P, R>(
+export async function performEffect<N extends symbol, P, R>(
   ctx: { [K in N]: Daemon<P & Resolvable<R>, any> },
   name: N,
   payload: P

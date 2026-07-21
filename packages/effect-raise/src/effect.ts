@@ -5,7 +5,7 @@ import {
   type EffectContextWithSignal,
 } from "@on-the-ground/effect";
 
-const effectName = "effect_raise" as const;
+const effectName: unique symbol = Symbol("effect_raise");
 
 /**
  * Wraps an asynchronous computation with a `raise` effect handler.

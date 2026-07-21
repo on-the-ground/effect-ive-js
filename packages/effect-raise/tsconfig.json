@@ -11,7 +11,8 @@
     "module": "ESNext",
     "moduleResolution": "Node",
     "allowSyntheticDefaultImports": true,
-    "noEmit": false
+    "noEmit": false,
+    "lib": ["es2020", "dom"]
   },
   "include": ["src/**/*.ts", "../internal/**/*.ts"]
 }

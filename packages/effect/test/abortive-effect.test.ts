@@ -2,6 +2,8 @@ import { describe, it, expect, vi } from "vitest";
 import { withAbortiveEffectHandler, abortEffect } from "../src/abortive-effect";
 import { emptyContext, withSignal } from "../src/effect_context";
 
+const TestEffect: unique symbol = Symbol("testEffect");
+
 describe("withAbortiveEffectHandler", () => {
   it("should call handler and abort after first event", async () => {
     const calls: any[] = [];
@@ -9,16 +11,14 @@ describe("withAbortiveEffectHandler", () => {
     const signal = new AbortController().signal;
     const ctxWithSignal = withSignal(signal, emptyContext);
 
-    const effName = "testEffect" as const;
-
     await withAbortiveEffectHandler(
       ctxWithSignal,
-      effName,
+      TestEffect,
       async (sigSrc, payload: any) => {
         calls.push({ sigSrc, payload });
       },
       async (ctx) => {
-        await abortEffect(ctx, effName, "hello");
+        await abortEffect(ctx, TestEffect, "hello");
       }
     );
 
@@ -36,7 +36,7 @@ describe("withAbortiveEffectHandler", () => {
 
     await withAbortiveEffectHandler(
       ctxWithSignal,
-      "testEffect",
+      TestEffect,
       async () => {},
       async () => {},
       teardown
@@ -55,14 +55,14 @@ describe("withAbortiveEffectHandler", () => {
 
     await withAbortiveEffectHandler(
       ctxWithSignal,
-      "testEffect",
+      TestEffect,
       async (_, payload) => {
         handle(payload);
       },
       async (ctx) => {
-        await abortEffect(ctx, "testEffect", "first");
+        await abortEffect(ctx, TestEffect, "first");
         await new Promise((res) => setTimeout(res, 10));
-        await abortEffect(ctx, "testEffect", "second"); // should be ignored
+        await abortEffect(ctx, TestEffect, "second"); // should be ignored
       }
     );
 

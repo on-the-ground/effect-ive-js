@@ -26,7 +26,7 @@ import {
  */
 export async function withAbortiveEffectHandler<
   PCtx extends EffectContextWithSignal,
-  N extends string,
+  N extends symbol,
   P
 >(
   pctx: PCtx,
@@ -74,7 +74,7 @@ export async function withAbortiveEffectHandler<
  *
  * @returns A Promise that resolves once the handler has processed the event
  */
-export async function abortEffect<N extends string, P>(
+export async function abortEffect<N extends symbol, P>(
   ctx: { [K in N]: Daemon<P, any> },
   name: N,
   payload: P

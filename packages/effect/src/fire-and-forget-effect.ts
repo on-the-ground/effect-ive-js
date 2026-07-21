@@ -21,7 +21,7 @@ import {
 
 export async function withFireAndForgetEffectHandler<
   PCtx extends EffectContextWithSignal,
-  N extends string,
+  N extends symbol,
   P
 >(
   pctx: PCtx,
@@ -51,7 +51,7 @@ export async function withFireAndForgetEffectHandler<
  * @param name - The effect name (must be a key in `ctx`).
  * @param payload - The payload to push to the effect handler.
  */
-export async function fireAndForgetEffect<N extends string, P>(
+export async function fireAndForgetEffect<N extends symbol, P>(
   ctx: { [K in N]: Daemon<P, any> },
   name: N,
   payload: P

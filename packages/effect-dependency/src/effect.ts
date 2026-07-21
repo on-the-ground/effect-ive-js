@@ -7,7 +7,7 @@ import {
 } from "@on-the-ground/effect";
 import { expectDuck, type QuackDSL } from "@on-the-ground/quackquack";
 
-const EFFECT_DEPENDENCY = "effect_dependency" as const;
+const EFFECT_DEPENDENCY: unique symbol = Symbol("effect_dependency");
 
 export type Payload<Messages extends string = string> = {
   role: { [K in Messages]: QuackDSL };

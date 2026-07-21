@@ -10,6 +10,9 @@ import {
   withSignal,
 } from "../src/effect_context";
 
+const ResumableEffect: unique symbol = Symbol("resumable");
+const NumEffect: unique symbol = Symbol("num");
+
 describe("withResumableEffectHandler + performEffect", () => {
   it("should perform effect and resolve with expected value", async () => {
     type Payload = { message: string };
@@ -31,10 +34,10 @@ describe("withResumableEffectHandler + performEffect", () => {
 
     await withResumableEffectHandler(
       ctxWithSignal,
-      "resumable",
+      ResumableEffect,
       handler,
       async (ctx) => {
-        const result = await performEffect(ctx, "resumable", {
+        const result = await performEffect(ctx, ResumableEffect, {
           message: "world",
         });
         expect(result).toBe("hello world");
@@ -59,10 +62,10 @@ describe("withResumableEffectHandler + performEffect", () => {
     );
     await withResumableEffectHandler(
       ctxWithSignal,
-      "num",
+      NumEffect,
       handler,
       async (ctx) => {
-        const result = await performEffect(ctx, "num", {});
+        const result = await performEffect(ctx, NumEffect, {});
         expect(result).toBe(42);
       },
       teardownSpy

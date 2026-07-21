@@ -1,7 +1,7 @@
 import type { Daemon } from "@on-the-ground/daemonizer";
 import { SIGNAL_KEY } from "@on-the-ground/daemonizer";
 
-export type EffectContextWithSignal = Record<string, Daemon<any, any>> & {
+export type EffectContextWithSignal = {
   [SIGNAL_KEY]: AbortSignal;
 };
 
@@ -28,7 +28,7 @@ export function withSignal<PCtx extends object>(
  */
 export function registerHandlerOnContext<
   PCtx extends EffectContextWithSignal,
-  N extends string,
+  N extends symbol,
   P
 >(
   name: N,
@@ -51,14 +51,14 @@ function cloneContext<T extends object | null>(ctx: T): T {
 /**
  * Retrieves the handler for the given effect name.
  */
-export function mustHaveHandler<N extends string, P>(
+export function mustHaveHandler<N extends symbol, P>(
   ctx: { [K in N]: Daemon<P, any> },
   name: N
 ): Daemon<P, any> {
   const handler = ctx[name];
   if (!handler) {
     throw new Error(
-      `No handler registered for effect "${name}". Use registerHandlerOnContext(...) to attach one.`
+      `No handler registered for effect ${String(name)}. Use registerHandlerOnContext(...) to attach one.`
     );
   }
   return handler;
