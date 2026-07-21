@@ -20,7 +20,7 @@
   ],
   "scripts": {
     "clean": "rm -rf dist",
-    "build": "yarn clean && rollup -c && rm -rf dist/internal dist/effect-dependency",
+    "build": "yarn clean && rollup -c && rm -rf dist/effect-dependency",
     "test": "jest"
   },
   "dependencies": {

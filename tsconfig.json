@@ -21,9 +21,6 @@
     "resolveJsonModule": true,
     //"verbatimModuleSyntax": true,
     "baseUrl": ".",
-    "paths": {
-      "@internal/*": ["internal/*"]
-    },
     "lib": ["es2020", "dom"]
   },
   "files": [],

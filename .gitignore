@@ -1,4 +1,5 @@
 node_modules/
+.idea/
 packages/*/dist
 *.tsbuildinfo
 .rollup.cache

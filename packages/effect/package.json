@@ -20,11 +20,12 @@
   ],
   "scripts": {
     "clean": "rm -rf dist",
-    "build": "yarn clean && rollup -c && rm -rf dist/internal dist/effect",
+    "build": "yarn clean && rollup -c && rm -rf dist/effect",
     "test": "vitest run"
   },
   "dependencies": {
-    "@on-the-ground/daemonizer": "^0.0.19"
+    "@on-the-ground/daemonizer": "^0.2.1",
+    "@on-the-ground/proxxy": "^0.1.0"
   },
   "devDependencies": {
     "@rollup/plugin-typescript": "^12.1.4",

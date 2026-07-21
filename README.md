@@ -47,7 +47,6 @@ It brings clarity and testability to async logic, without relying on generator t
 packages/
 ├── effect          ← core effect handler (AbortSignal-based)
 ├── effect-raise    ← raise/resume for recoverable control flow
-├── internal        ← shared internals (not published)
 ```
 
 Each package has its own README with full examples.

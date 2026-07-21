@@ -14,5 +14,5 @@
     "noEmit": false,
     "lib": ["es2020", "dom"]
   },
-  "include": ["src/**/*.ts", "../internal/**/*.ts"]
+  "include": ["src/**/*.ts"]
 }

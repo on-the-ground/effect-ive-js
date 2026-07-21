@@ -49,6 +49,30 @@ function cloneContext<T extends object | null>(ctx: T): T {
 }
 
 /**
+ * Returns the AbortSignal from the given context.
+ */
+export function getSignal(ctx: EffectContextWithSignal): AbortSignal {
+    return ctx[SIGNAL_KEY];
+}
+
+/**
+ * Registers an effect proxy in the given context under the given symbol key.
+ */
+export function registerEffectOnContext<
+    PCtx extends EffectContextWithSignal,
+    N extends symbol,
+    T,
+>(
+    name: N,
+    effect: T,
+    pctx: PCtx
+): PCtx & { [K in N]: T } {
+    const ctx = cloneContext(pctx) as PCtx & { [K in N]: T };
+    (ctx as Record<symbol, T>)[name] = effect;
+    return ctx;
+}
+
+/**
  * Retrieves the handler for the given effect name.
  */
 export function mustHaveHandler<N extends symbol, P>(

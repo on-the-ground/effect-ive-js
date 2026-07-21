@@ -57,7 +57,7 @@ export async function withAbortiveEffectHandler<
     await effectfulThunk(ctxWithHandler);
   } finally {
     if (teardown) teardown();
-    handler.close();
+    await handler.close();
   }
 }
 

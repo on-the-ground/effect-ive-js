@@ -1,6 +1,6 @@
 export * from "./abortive-effect";
-export * from "./fire-and-forget-effect";
-export * from "./resumable-effect";
+export * from "./effect";
+export * from "./effect_token";
 
 export {
   withSignal,

@@ -13,7 +13,7 @@
     "moduleResolution": "Node",
     "allowSyntheticDefaultImports": true,
     "noEmit": false,
-    "lib": ["es2020", "dom"]
+    "lib": ["es2020", "esnext.disposable", "dom"]
   },
-  "include": ["src/**/*.ts", "test/**/*.ts", "../internal/**/*.ts"]
+  "include": ["src/**/*.ts", "test/**/*.ts"]
 }
