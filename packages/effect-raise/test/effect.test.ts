@@ -70,3 +70,43 @@ describe("raiseEffect across async call boundaries", () => {
     expect(result).toBeUndefined();
   });
 });
+
+describe("RaiseMode", () => {
+  it("urgent (default) returns as soon as raised, abandoning the rest of effectfulThunk", async () => {
+    const sideEffect = { ranAfterRaise: false };
+    const raised = new Error("urgent failure");
+
+    const result = await withRaiseEffectHandler(
+      withSignal(new AbortController().signal, emptyContext),
+      async (ctx) => {
+        raiseEffect(ctx, raised);
+        await delay(20);
+        sideEffect.ranAfterRaise = true;
+      },
+    );
+
+    expect(result).toBe(raised);
+    expect(sideEffect.ranAfterRaise).toBe(false);
+
+    // drain the abandoned continuation so it doesn't bleed into the next test
+    await delay(30);
+  });
+
+  it("graceful waits for effectfulThunk to actually finish before returning the raised error", async () => {
+    const sideEffect = { ranAfterRaise: false };
+    const raised = new Error("graceful failure");
+
+    const result = await withRaiseEffectHandler(
+      withSignal(new AbortController().signal, emptyContext),
+      async (ctx) => {
+        raiseEffect(ctx, raised);
+        await delay(20);
+        sideEffect.ranAfterRaise = true;
+      },
+      "graceful",
+    );
+
+    expect(result).toBe(raised);
+    expect(sideEffect.ranAfterRaise).toBe(true);
+  });
+});

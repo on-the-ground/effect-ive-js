@@ -1,11 +1,25 @@
 import {
-  abortEffect,
   type AbortiveEffectHandler,
   type EffectContextWithSignal,
   withAbortiveEffectHandler,
 } from "@on-the-ground/effect";
 
-const effectName: unique symbol = Symbol("effect_raise");
+const RaiseEffect: unique symbol = Symbol("effect_raise");
+
+/**
+ * Controls how a raise is allowed to affect the surrounding `effectfulThunk`:
+ * - `"urgent"` (default) - race the raise against `effectfulThunk`. The moment
+ *   an error is raised, `withRaiseEffectHandler` returns it immediately and
+ *   whatever `effectfulThunk` was still doing is abandoned, not awaited.
+ * - `"graceful"` - never abandon `effectfulThunk`. The abort signal still
+ *   fires the instant something is raised (so cooperative cleanup downstream
+ *   can react to it), but `withRaiseEffectHandler` itself waits for
+ *   `effectfulThunk` to actually finish before returning the raised error.
+ *
+ * Same SIGTERM/SIGKILL idea: both stop things, "urgent" doesn't wait for
+ * anyone to clean up, "graceful" does.
+ */
+export type RaiseMode = "urgent" | "graceful";
 
 /**
  * Wraps an asynchronous computation with a `raise` effect handler.
@@ -15,12 +29,14 @@ const effectName: unique symbol = Symbol("effect_raise");
  *
  * Internally, this is implemented by combining:
  * - an abortive effect handler that listens for a raised error,
- * - and a Promise.race to capture the first raised error or successful completion.
+ * - and, in `"urgent"` mode, a Promise.race to capture the first raised error
+ *   or successful completion ahead of `effectfulThunk` actually finishing.
  *
  * @template PCtx The base context type.
  * @template E The error type that can be raised.
  * @param pctx The parent effect context.
  * @param effectfulThunk A computation that may call `raiseEffect` to raise an error.
+ * @param mode See {@link RaiseMode}. Defaults to `"urgent"`.
  * @returns A Promise that resolves to either:
  *   - `void` if the computation completed without raising,
  *   - or the raised error of type `E`.
@@ -31,20 +47,30 @@ export async function withRaiseEffectHandler<
 >(
   pctx: PCtx,
   effectfulThunk: (ctx: {
-    [K in typeof effectName]: AbortiveEffectHandler<E>;
+    [K in typeof RaiseEffect]: AbortiveEffectHandler<E>;
   }) => Promise<void>,
+  mode: RaiseMode = "urgent",
 ): Promise<Result<E>> {
+  let raised: E | undefined;
   let resolve: (value: E | PromiseLike<E>) => void;
   const errPromise = new Promise<E>((r) => (resolve = r));
-  const handleEvent = async (_: PCtx, error: E): Promise<void> =>
+  const handleEvent = async (_: PCtx, error: E): Promise<void> => {
+    raised = error;
     resolve(error);
+  };
 
-  return await Promise.race([
-    withAbortiveEffectHandler(pctx, effectName, handleEvent).run(
-      effectfulThunk,
-    ),
-    errPromise,
-  ]);
+  const runPromise = withAbortiveEffectHandler(
+    pctx,
+    RaiseEffect,
+    handleEvent,
+  ).run(effectfulThunk);
+
+  if (mode === "graceful") {
+    await runPromise;
+    return raised;
+  }
+
+  return await Promise.race([runPromise, errPromise]);
 }
 
 /**
@@ -59,10 +85,10 @@ export async function withRaiseEffectHandler<
  * @returns A Promise that resolves when the effect is handled.
  */
 export function raiseEffect<E extends Error>(
-  ctx: { [K in typeof effectName]: AbortiveEffectHandler<E> },
+  ctx: { [K in typeof RaiseEffect]: AbortiveEffectHandler<E> },
   err: E,
-) {
-  return abortEffect(ctx, effectName, err);
+): void {
+  ctx[RaiseEffect].abort(err);
 }
 
 /**
