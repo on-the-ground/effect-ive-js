@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { withAbortiveEffectHandler, abortEffect } from "../src";
+import { withAbortiveEffectHandler } from "../src";
 import { emptyContext, getSignal, withSignal } from "../src/effect_context";
 
 const TestEffect: unique symbol = Symbol("testEffect");
@@ -18,7 +18,7 @@ describe("withAbortiveEffectHandler", () => {
           calls.push({sigSrc, payload});
         },
     ).run(async (ctx) => {
-      abortEffect(ctx, TestEffect, "hello");
+      ctx[TestEffect].abort("hello");
     });
 
     expect(calls).toHaveLength(1);
@@ -59,10 +59,10 @@ describe("withAbortiveEffectHandler", () => {
         handle(payload);
       },
     ).run(async (ctx) => {
-      abortEffect(ctx, TestEffect, "first");
+      ctx[TestEffect].abort("first");
       // abort() flips the `aborted` guard synchronously - "second" is dropped
       // immediately, no queue/tick to wait out anymore.
-      abortEffect(ctx, TestEffect, "second"); // should be ignored
+      ctx[TestEffect].abort("second"); // should be ignored
     });
 
     expect(handle).toHaveBeenCalledOnce();
@@ -77,9 +77,9 @@ describe("withAbortiveEffectHandler", () => {
       TestEffect,
       async () => {}
     ).run(async (ctx) => {
-      abortEffect(ctx, TestEffect, "go");
-      // controller.abort() runs synchronously inside abortEffect, so the
-      // merged signal is already aborted by the time the call returns.
+      ctx[TestEffect].abort("go");
+      // controller.abort() runs synchronously inside abort(), so the merged
+      // signal is already aborted by the time the call returns.
       expect(getSignal(ctx).aborted).toBe(true);
     });
   });
