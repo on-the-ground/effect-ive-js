@@ -1,17 +1,27 @@
 import type { Daemon } from "@on-the-ground/daemonizer";
 import { SIGNAL_KEY } from "@on-the-ground/daemonizer";
 
+/**
+ * Context shape used by this package: every context must expose an `AbortSignal`
+ * at the well-known daemon signal key.
+ */
 export type EffectContextWithSignal = {
   [SIGNAL_KEY]: AbortSignal;
 };
 
 /**
- * An empty effect context.
+ * A minimal context object with no handlers attached.
  */
 export const emptyContext: {} = {};
 
 /**
- * Returns a new context with the given AbortSignal attached.
+ * Returns a new context that inherits from the supplied parent context and carries
+ * the provided abort signal.
+ *
+ * @template PCtx - The parent context type.
+ * @param signal - Abort signal to attach to the context.
+ * @param pctx - Existing context used as the parent object.
+ * @returns A new context that carries the signal and inherits from `pctx`.
  */
 export function withSignal<PCtx extends object>(
   signal: AbortSignal,
@@ -23,8 +33,18 @@ export function withSignal<PCtx extends object>(
 }
 
 /**
- * Registers a named effect handler in the given context.
- * The resulting context includes the new handler in addition to the existing ones.
+ * Registers a named daemon handler on the given context.
+ *
+ * The returned context contains the new handler while still inheriting from the
+ * provided parent context, allowing handlers to fall back to outer scopes.
+ *
+ * @template PCtx - The parent context type.
+ * @template N - The symbol key used for the handler.
+ * @template P - Payload type accepted by the daemon.
+ * @param name - Unique symbol key for the handler.
+ * @param handler - Daemon instance to register.
+ * @param pctx - Parent context to extend.
+ * @returns A new context containing the registered handler.
  */
 export function registerHandlerOnContext<
   PCtx extends EffectContextWithSignal,
@@ -41,22 +61,35 @@ export function registerHandlerOnContext<
 }
 
 /**
- * Returns a shallow clone of the given context using prototype inheritance.
- * This allows effect handler fallback from outer scopes when a key is missing.
+ * Returns a shallow clone of the supplied context via prototype inheritance.
+ *
+ * This preserves the parent/child relationship so handlers can be looked up
+ * through outer scopes when a key is not present in the current context.
  */
 function cloneContext<T extends object | null>(ctx: T): T {
   return Object.create(ctx);
 }
 
 /**
- * Returns the AbortSignal from the given context.
+ * Returns the abort signal attached to the context.
+ *
+ * @param ctx - Context carrying the daemon signal.
+ * @returns The `AbortSignal` attached to the context.
  */
 export function getSignal(ctx: EffectContextWithSignal): AbortSignal {
     return ctx[SIGNAL_KEY];
 }
 
 /**
- * Registers an effect proxy in the given context under the given symbol key.
+ * Registers an arbitrary value (such as a proxied effect handler) under a symbol key.
+ *
+ * @template PCtx - The parent context type.
+ * @template N - The symbol key used for the effect.
+ * @template T - The value type to expose on the context.
+ * @param name - Symbol key for the effect entry.
+ * @param effect - Value to register under the key.
+ * @param pctx - Parent context to extend.
+ * @returns A new context containing the registered effect.
  */
 export function registerEffectOnContext<
     PCtx extends EffectContextWithSignal,
@@ -73,7 +106,13 @@ export function registerEffectOnContext<
 }
 
 /**
- * Retrieves the handler for the given effect name.
+ * Retrieves a registered daemon handler or throws if it is missing.
+ *
+ * @template N - The symbol key used for the handler.
+ * @template P - Payload type accepted by the handler.
+ * @param ctx - Context containing the handler.
+ * @param name - Symbol key of the handler to fetch.
+ * @returns The registered handler.
  */
 export function mustHaveHandler<N extends symbol, P>(
   ctx: { [K in N]: Daemon<P, any> },

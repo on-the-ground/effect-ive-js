@@ -1,46 +1,88 @@
 # @on-the-ground/effect
 
-Effect system primitives for implementing structured, resumable, abortive, and fire-and-forget effects in JavaScript/TypeScript.
+This package exposes small composable helpers for building effect-driven APIs with `AbortSignal` support, typed effect tokens, and proxy-backed handlers.
 
-This package provides **core effect abstractions** such as:
+## What this package provides
 
-- **ResumableEffect** – structured yield/resume pattern for cooperative effects
-- **AbortiveEffect** – immediate failure propagation with `AbortSignal` support
-- **FireAndForgetEffect** – untracked, non-blocking execution with context awareness
+- `withEffectHandler(...)` for creating a proxy-backed effect handler with resumable or fire-and-forget usage.
+- `withAbortiveEffectHandler(...)` and `abortEffect(...)` for one-shot abortive effects that cancel the surrounding scope after the first event.
+- `effectTokenOf(...)` and the `EffectToken` / `ExpectedInterface` types for strongly typed effect keys.
+- Context helpers such as `emptyContext`, `withSignal(...)`, `registerHandlerOnContext(...)`, `registerEffectOnContext(...)`, `getSignal(...)`, and `mustHaveHandler(...)`.
 
-## 📁 Directory Structure
+## Quick example
 
+```ts
+import {
+  emptyContext,
+  effectTokenOf,
+  withEffectHandler,
+  withSignal,
+} from "@on-the-ground/effect";
+
+interface Greeter {
+  greet(message: string): string;
+}
+
+const GreeterEffect = effectTokenOf<Greeter>("greeter");
+
+const ctx = withSignal(new AbortController().signal, emptyContext);
+
+await withEffectHandler(ctx, GreeterEffect, class {
+  greet(message: string) {
+    return `hello ${message}`;
+  }
+}).run(async (ctx) => {
+  const result = await ctx[GreeterEffect].greet("world");
+  console.log(result); // hello world
+});
 ```
+
+## Abortive effect example
+
+```ts
+import { abortEffect, emptyContext, withAbortiveEffectHandler, withSignal } from "@on-the-ground/effect";
+
+const effectName = Symbol("effect");
+const ctx = withSignal(new AbortController().signal, emptyContext);
+
+await withAbortiveEffectHandler(
+  ctx,
+  effectName,
+  async (_ctx, payload) => {
+    console.log(payload);
+  },
+).run(async (ctx) => {
+  await abortEffect(ctx, effectName, "hello");
+});
+```
+
+## Source layout
+
+```text
 src/
-├── index.ts                  # Entry point
-├── resumable-effect.ts       # Handler for suspendable/resumable effects
-├── abortive-effect.ts        # Handler for abort-aware, one-way effects
-├── fire-and-forget-effect.ts # Handler for non-blocking "fire and forget" effects
+├── index.ts               # Public entry point
+├── abortive-effect.ts     # Abortive effect helpers
+├── effect.ts              # Proxy-backed effect handler helper
+├── effect_context.ts      # Context and signal helpers
+└── effect_token.ts        # Typed effect token helpers
 ```
 
-## ✅ Features
+## Tests
 
-- Modular and composable effect handlers
-- Abort signal wiring via `AbortSignal`
-- Type-safe cooperative effect management
-- Fully ESM and CJS compatible (via Rollup)
+Tests live under `test/` and use `vitest`:
 
-## 🧪 Testing
-
-Tests live under `/test` using `vitest`:
-
-```
+```text
 test/
 ├── abortive-effect.test.ts
-├── fire-and-forget.test.ts
-└── resumable-effect.test.ts
+├── effect-context.test.ts
+└── effect.test.ts
 ```
 
 ```bash
 yarn test
 ```
 
-## 🔧 Build
+## Build
 
 ```bash
 yarn build

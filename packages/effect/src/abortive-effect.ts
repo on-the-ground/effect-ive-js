@@ -6,23 +6,21 @@ import {
 } from "./effect_context";
 
 /**
- * Registers an abortive effect handler into the given context, executes the provided
- * asynchronous thunk, and ensures proper cleanup and cancellation behavior.
+ * Registers a one-shot abortive effect handler into the supplied context.
  *
- * This handler is designed to handle a single event. Once the event is handled,
- * the internal AbortController is triggered, propagating cancellation to the entire context.
+ * The first event delivered through the handler aborts the local controller, which
+ * propagates cancellation through the merged context so later work can observe
+ * the abort signal. The supplied `handleEvent` callback runs with the augmented
+ * context and payload before the abort is triggered.
  *
- * @template N - The name (key) of the effect to register
- * @template P - The payload type accepted by the effect handler
- *
- * @param pctx - The parent context, which must already include an AbortSignal
- * @param effectName - A unique string name for the effect within the context
- * @param handleEvent - The effect handler function; receives the context and payload.
- *                      The effect scope is aborted once this returns or throws.
- * @param effectfulThunk - A function that performs async logic using the extended context
- * @param teardown - (Optional) Cleanup function to be called after the thunk finishes or is aborted
- *
- * @returns A Promise that resolves after the effectfulThunk has completed or been aborted
+ * @template PCtx - Parent context type carrying an abort signal.
+ * @template N - Symbol key used to register the handler.
+ * @template P - Payload type the handler accepts.
+ * @param pctx - Parent context that already exposes an abort signal.
+ * @param effectName - Unique symbol key for the effect handler.
+ * @param handleEvent - Async callback invoked for the first delivered payload.
+ * @param teardown - Optional cleanup hook invoked when the runner exits.
+ * @returns A runner object with a `run` method that executes the effectful thunk.
  */
 export function withAbortiveEffectHandler<
   PCtx extends EffectContextWithSignal,
@@ -77,19 +75,17 @@ export function withAbortiveEffectHandler<
 }
 
 /**
- * Pushes a payload into a named effect handler within the context.
- * Intended to trigger an abortive handler registered with `withAbortiveEffectHandler`.
+ * Pushes a payload into a named abortive effect handler.
  *
- * @template N - The name of the effect to trigger
- * @template P - The payload type accepted by the effect
+ * The returned promise resolves once the payload is queued, not once the handler
+ * has finished processing it or aborted the surrounding scope.
  *
- * @param ctx - The context containing the registered effect handler
- * @param name - The effect name (key) to invoke
- * @param payload - The payload to deliver to the handler
- *
- * @returns A Promise that resolves once the payload is enqueued - NOT once
- *          `handleEvent` has finished processing it. Don't assume the handler's
- *          side effects (or the abort itself) have happened right after this resolves.
+ * @template N - Symbol key used to identify the effect.
+ * @template P - Payload type accepted by the effect.
+ * @param ctx - Context containing the registered handler.
+ * @param name - Symbol key of the handler to invoke.
+ * @param payload - Payload to deliver to the handler.
+ * @returns A promise that resolves when the payload has been queued.
  */
 export async function abortEffect<N extends symbol, P>(
   ctx: { [K in N]: Daemon<P, any> },
