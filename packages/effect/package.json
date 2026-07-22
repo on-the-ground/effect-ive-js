@@ -1,10 +1,11 @@
 {
   "name": "@on-the-ground/effect",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "license": "MIT",
   "type": "module",
   "exports": {
     ".": {
+      "types": "./dist/index.d.ts",
       "import": "./dist/index.mjs",
       "require": "./dist/index.cjs"
     }
@@ -24,8 +25,8 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@on-the-ground/daemonizer": "^0.2.1",
-    "@on-the-ground/proxxy": "^0.1.0"
+    "@on-the-ground/daemonizer": "^0.2.2",
+    "@on-the-ground/proxxy": "^0.1.1"
   },
   "devDependencies": {
     "rollup": "^4.46.0",
