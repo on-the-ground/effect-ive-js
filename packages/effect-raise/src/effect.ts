@@ -1,5 +1,9 @@
-import type {Daemon} from "@on-the-ground/daemonizer";
-import {abortEffect, type EffectContextWithSignal, withAbortiveEffectHandler,} from "@on-the-ground/effect";
+import {
+  abortEffect,
+  type AbortiveEffectHandler,
+  type EffectContextWithSignal,
+  withAbortiveEffectHandler,
+} from "@on-the-ground/effect";
 
 const effectName: unique symbol = Symbol("effect_raise");
 
@@ -22,23 +26,25 @@ const effectName: unique symbol = Symbol("effect_raise");
  *   - or the raised error of type `E`.
  */
 export async function withRaiseEffectHandler<
-    PCtx extends EffectContextWithSignal,
-    E extends Error
+  PCtx extends EffectContextWithSignal,
+  E extends Error,
 >(
-    pctx: PCtx,
-    effectfulThunk: (ctx: {
-        [K in typeof effectName]: Daemon<E, PCtx>;
-    }) => Promise<void>
+  pctx: PCtx,
+  effectfulThunk: (ctx: {
+    [K in typeof effectName]: AbortiveEffectHandler<E>;
+  }) => Promise<void>,
 ): Promise<Result<E>> {
-    let resolve: (value: E | PromiseLike<E>) => void;
-    const errPromise = new Promise<E>((r) => (resolve = r));
-    const handleEvent = async (_: PCtx, error: E): Promise<void> =>
-        resolve(error);
+  let resolve: (value: E | PromiseLike<E>) => void;
+  const errPromise = new Promise<E>((r) => (resolve = r));
+  const handleEvent = async (_: PCtx, error: E): Promise<void> =>
+    resolve(error);
 
-    return await Promise.race([
-        withAbortiveEffectHandler(pctx, effectName, handleEvent, effectfulThunk),
-        errPromise,
-    ]);
+  return await Promise.race([
+    withAbortiveEffectHandler(pctx, effectName, handleEvent).run(
+      effectfulThunk,
+    ),
+    errPromise,
+  ]);
 }
 
 /**
@@ -52,11 +58,11 @@ export async function withRaiseEffectHandler<
  * @param err The error instance to raise.
  * @returns A Promise that resolves when the effect is handled.
  */
-export async function raiseEffect<E extends Error>(
-    ctx: { [K in typeof effectName]: Daemon<E, any> },
-    err: E
-): Promise<void> {
-    return abortEffect(ctx, effectName, err);
+export function raiseEffect<E extends Error>(
+  ctx: { [K in typeof effectName]: AbortiveEffectHandler<E> },
+  err: E,
+) {
+  return abortEffect(ctx, effectName, err);
 }
 
 /**

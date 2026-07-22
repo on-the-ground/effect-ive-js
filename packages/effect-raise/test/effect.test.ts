@@ -1,12 +1,12 @@
 import { describe, it, expect } from "@jest/globals";
-import { withRaiseEffectHandler, raiseEffect } from "../src/effect";
+import { withRaiseEffectHandler, raiseEffect } from "../src";
 import { withSignal, emptyContext } from "@on-the-ground/effect";
 
 describe("withRaiseEffectHandler", () => {
   it("should return void when no error is raised", async () => {
     const result = await withRaiseEffectHandler(
       withSignal(new AbortController().signal, emptyContext),
-      async () => {}
+      async () => {},
     );
     expect(result).toBeUndefined();
   });
@@ -16,8 +16,8 @@ describe("withRaiseEffectHandler", () => {
     const result = await withRaiseEffectHandler(
       withSignal(new AbortController().signal, emptyContext),
       async (ctx) => {
-        await raiseEffect(ctx, raised);
-      }
+        raiseEffect(ctx, raised);
+      },
     );
     expect(result).toBe(raised);
   });
@@ -31,7 +31,7 @@ describe("raiseEffect across async call boundaries", () => {
 
     async function level3(ctx: any) {
       await delay(10);
-      await raiseEffect(ctx, new CustomError("raised at level 3"));
+      raiseEffect(ctx, new CustomError("raised at level 3"));
     }
 
     async function level2(ctx: any) {
@@ -48,7 +48,7 @@ describe("raiseEffect across async call boundaries", () => {
       withSignal(new AbortController().signal, emptyContext),
       async (ctx) => {
         await level1(ctx);
-      }
+      },
     );
 
     expect(result).toBeInstanceOf(CustomError);
@@ -64,7 +64,7 @@ describe("raiseEffect across async call boundaries", () => {
       withSignal(new AbortController().signal, emptyContext),
       async () => {
         await noRaise();
-      }
+      },
     );
 
     expect(result).toBeUndefined();

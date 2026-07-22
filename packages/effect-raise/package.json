@@ -24,10 +24,10 @@
     "test": "jest"
   },
   "dependencies": {
-    "@on-the-ground/effect": "^0.0.16"
+    "@on-the-ground/effect": "^0.1.5"
   },
   "devDependencies": {
-    "@on-the-ground/daemonizer": "^0.0.19",
+    "@on-the-ground/daemonizer": "^0.2.1",
     "@rollup/plugin-typescript": "^12.1.4",
     "@types/node": "^24.1.0",
     "jest": "^30.0.5",

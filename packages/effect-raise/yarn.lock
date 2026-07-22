@@ -603,27 +603,28 @@
     "@emnapi/runtime" "^1.4.3"
     "@tybys/wasm-util" "^0.10.0"
 
-"@on-the-ground/daemonizer@^0.0.18":
-  version "0.0.18"
-  resolved "https://registry.yarnpkg.com/@on-the-ground/daemonizer/-/daemonizer-0.0.18.tgz#7a97d5af083a629517aaccc84935e5945dd1c583"
-  integrity sha512-Mcshoufu3Dk0KaBYup5TEfc1d8CE04tJbKwPitIY+sh3FGBF5pMlE1zuhcVCuoU8sqs4d3jTXDvuVoX6W8kohg==
-  dependencies:
-    tslib "^2.8.1"
-
-"@on-the-ground/daemonizer@^0.0.19":
-  version "0.0.19"
-  resolved "https://registry.yarnpkg.com/@on-the-ground/daemonizer/-/daemonizer-0.0.19.tgz#50084ca045fd38ca91f41820ace5aaad1a0ef619"
-  integrity sha512-FET0zwH8FxMwvwZCdNFS+MymNenN/th08VB8zLWXb7Bwnh8XY5+bgasg9IcL7N99GW1kIqHKIgVaJrTtw8wAgQ==
+"@on-the-ground/daemonizer@^0.2.1":
+  version "0.2.1"
+  resolved "https://registry.npmjs.org/@on-the-ground/daemonizer/-/daemonizer-0.2.1.tgz#186125c2cb917f50583ec380e962938bd89d8aeb"
+  integrity sha512-S9ftVFfPMk/MisDJ8gYq8DRM8VMkTViTeaan7bhAxSlwIzDT+vgVr5bSNkJ5c2TVKSa3yAJl4gVr8DIoGAf5fg==
   dependencies:
     nanoid "3.3.4"
     tslib "^2.8.1"
 
-"@on-the-ground/effect@^0.0.16":
-  version "0.0.16"
-  resolved "https://registry.yarnpkg.com/@on-the-ground/effect/-/effect-0.0.16.tgz#2f7ced2c51cb745bf2440ecea60e9178b5d22453"
-  integrity sha512-NfhjUk95uaXAbCxLKJNYgaH3Sj0S32nQiW4Agi+dAEjASZ2BirNRNeuzzhMtF6HWoZoDMlBGb2Nec41HG1JOLA==
+"@on-the-ground/effect@^0.1.2":
+  version "0.1.2"
+  resolved "https://registry.npmjs.org/@on-the-ground/effect/-/effect-0.1.2.tgz#7c5e7a09ea32650ca5caee851922df848ba0d558"
+  integrity sha512-vr3TnWwWa/BEKPYl0zHvDGN1s/Sy8hPTQ4A9rC5oWGHBlJbnIEO8n4DFvCkkaULvd58DiSK8h7Uj8KkKK9EO3w==
   dependencies:
-    "@on-the-ground/daemonizer" "^0.0.18"
+    "@on-the-ground/daemonizer" "^0.2.1"
+    "@on-the-ground/proxxy" "^0.1.0"
+
+"@on-the-ground/proxxy@^0.1.0":
+  version "0.1.0"
+  resolved "https://registry.npmjs.org/@on-the-ground/proxxy/-/proxxy-0.1.0.tgz#5b91a6363def1ff8949964cf3d948e580c1294fd"
+  integrity sha512-YwlNHBqmr717J6s82jQS7uOlPfNVcMKNTFxEslts2QbBNa/GUAr/bWAUTayC9iKfNFEvD5++jQ4p/d22mkHvYw==
+  dependencies:
+    "@on-the-ground/daemonizer" "^0.2.1"
 
 "@pkgjs/parseargs@^0.11.0":
   version "0.11.0"
