@@ -1,4 +1,3 @@
-import type { Daemon } from "@on-the-ground/daemonizer";
 import { SIGNAL_KEY } from "@on-the-ground/daemonizer";
 
 /**
@@ -25,38 +24,10 @@ export const emptyContext: {} = {};
  */
 export function withSignal<PCtx extends object>(
   signal: AbortSignal,
-  pctx: PCtx
+  pctx: PCtx,
 ): PCtx & { [SIGNAL_KEY]: AbortSignal } {
   const ctx = cloneContext(pctx) as PCtx & { [SIGNAL_KEY]: AbortSignal };
   ctx[SIGNAL_KEY] = signal;
-  return ctx;
-}
-
-/**
- * Registers a named daemon handler on the given context.
- *
- * The returned context contains the new handler while still inheriting from the
- * provided parent context, allowing handlers to fall back to outer scopes.
- *
- * @template PCtx - The parent context type.
- * @template N - The symbol key used for the handler.
- * @template P - Payload type accepted by the daemon.
- * @param name - Unique symbol key for the handler.
- * @param handler - Daemon instance to register.
- * @param pctx - Parent context to extend.
- * @returns A new context containing the registered handler.
- */
-export function registerHandlerOnContext<
-  PCtx extends EffectContextWithSignal,
-  N extends symbol,
-  P
->(
-  name: N,
-  handler: Daemon<P, PCtx>,
-  pctx: PCtx
-): PCtx & { [K in N]: Daemon<P, PCtx> } {
-  const ctx = cloneContext(pctx) as PCtx & { [K in N]: Daemon<P, PCtx> };
-  (ctx as Record<N, Daemon<P, PCtx>>)[name] = handler;
   return ctx;
 }
 
@@ -77,7 +48,7 @@ function cloneContext<T extends object | null>(ctx: T): T {
  * @returns The `AbortSignal` attached to the context.
  */
 export function getSignal(ctx: EffectContextWithSignal): AbortSignal {
-    return ctx[SIGNAL_KEY];
+  return ctx[SIGNAL_KEY];
 }
 
 /**
@@ -92,17 +63,13 @@ export function getSignal(ctx: EffectContextWithSignal): AbortSignal {
  * @returns A new context containing the registered effect.
  */
 export function registerEffectOnContext<
-    PCtx extends EffectContextWithSignal,
-    N extends symbol,
-    T,
->(
-    name: N,
-    effect: T,
-    pctx: PCtx
-): PCtx & { [K in N]: T } {
-    const ctx = cloneContext(pctx) as PCtx & { [K in N]: T };
-    (ctx as Record<symbol, T>)[name] = effect;
-    return ctx;
+  PCtx extends EffectContextWithSignal,
+  N extends symbol,
+  T,
+>(name: N, effect: T, pctx: PCtx): PCtx & { [K in N]: T } {
+  const ctx = cloneContext(pctx) as PCtx & { [K in N]: T };
+  (ctx as Record<symbol, T>)[name] = effect;
+  return ctx;
 }
 
 /**
@@ -114,14 +81,14 @@ export function registerEffectOnContext<
  * @param name - Symbol key of the handler to fetch.
  * @returns The registered handler.
  */
-export function mustHaveHandler<N extends symbol, P>(
-  ctx: { [K in N]: Daemon<P, any> },
-  name: N
-): Daemon<P, any> {
+export function mustHaveHandler<N extends symbol, T>(
+  ctx: { [K in N]: T },
+  name: N,
+): T {
   const handler = ctx[name];
   if (!handler) {
     throw new Error(
-      `No handler registered for effect ${String(name)}. Use registerHandlerOnContext(...) to attach one.`
+      `No handler registered for effect ${String(name)}. Use registerEffectOnContext(...) to attach one.`,
     );
   }
   return handler;

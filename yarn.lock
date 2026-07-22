@@ -725,21 +725,6 @@
   dependencies:
     "@tybys/wasm-util" "^0.10.3"
 
-"@on-the-ground/daemonizer@^0.0.18":
-  version "0.0.18"
-  resolved "https://registry.yarnpkg.com/@on-the-ground/daemonizer/-/daemonizer-0.0.18.tgz#7a97d5af083a629517aaccc84935e5945dd1c583"
-  integrity sha512-Mcshoufu3Dk0KaBYup5TEfc1d8CE04tJbKwPitIY+sh3FGBF5pMlE1zuhcVCuoU8sqs4d3jTXDvuVoX6W8kohg==
-  dependencies:
-    tslib "^2.8.1"
-
-"@on-the-ground/daemonizer@^0.0.19":
-  version "0.0.19"
-  resolved "https://registry.yarnpkg.com/@on-the-ground/daemonizer/-/daemonizer-0.0.19.tgz#50084ca045fd38ca91f41820ace5aaad1a0ef619"
-  integrity sha512-FET0zwH8FxMwvwZCdNFS+MymNenN/th08VB8zLWXb7Bwnh8XY5+bgasg9IcL7N99GW1kIqHKIgVaJrTtw8wAgQ==
-  dependencies:
-    nanoid "3.3.4"
-    tslib "^2.8.1"
-
 "@on-the-ground/daemonizer@^0.2.1":
   version "0.2.1"
   resolved "https://registry.yarnpkg.com/@on-the-ground/daemonizer/-/daemonizer-0.2.1.tgz#186125c2cb917f50583ec380e962938bd89d8aeb"
@@ -747,13 +732,6 @@
   dependencies:
     nanoid "3.3.4"
     tslib "^2.8.1"
-
-"@on-the-ground/effect@^0.0.16":
-  version "0.0.16"
-  resolved "https://registry.yarnpkg.com/@on-the-ground/effect/-/effect-0.0.16.tgz#2f7ced2c51cb745bf2440ecea60e9178b5d22453"
-  integrity sha512-NfhjUk95uaXAbCxLKJNYgaH3Sj0S32nQiW4Agi+dAEjASZ2BirNRNeuzzhMtF6HWoZoDMlBGb2Nec41HG1JOLA==
-  dependencies:
-    "@on-the-ground/daemonizer" "^0.0.18"
 
 "@on-the-ground/proxxy@^0.1.0":
   version "0.1.0"

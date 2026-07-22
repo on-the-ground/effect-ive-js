@@ -1,17 +1,20 @@
-import { Daemon, mergeAbortSignal } from "@on-the-ground/daemonizer";
+import { mergeAbortSignal } from "@on-the-ground/daemonizer";
 import {
   type EffectContextWithSignal,
   mustHaveHandler,
-  registerHandlerOnContext,
+  registerEffectOnContext,
 } from "./effect_context";
+
+export interface AbortiveEffectHandler<P> {
+  abort(payload: P): void;
+}
 
 /**
  * Registers a one-shot abortive effect handler into the supplied context.
  *
- * The first event delivered through the handler aborts the local controller, which
- * propagates cancellation through the merged context so later work can observe
- * the abort signal. The supplied `handleEvent` callback runs with the augmented
- * context and payload before the abort is triggered.
+ * The first abort triggers the scope cancellation immediately, and subsequent
+ * abort attempts are ignored. The provided `handleEvent` callback can still
+ * perform async cleanup, but the abort call itself is synchronous.
  *
  * @template PCtx - Parent context type carrying an abort signal.
  * @template N - Symbol key used to register the handler.
@@ -19,7 +22,7 @@ import {
  * @param pctx - Parent context that already exposes an abort signal.
  * @param effectName - Unique symbol key for the effect handler.
  * @param handleEvent - Async callback invoked for the first delivered payload.
- * @param teardown - Optional cleanup hook invoked when the runner exits.
+ * @param teardown - Optional cleanup hook invoked after the handler finishes.
  * @returns A runner object with a `run` method that executes the effectful thunk.
  */
 export function withAbortiveEffectHandler<
@@ -35,63 +38,59 @@ export function withAbortiveEffectHandler<
   const controller = new AbortController();
   const mergedSignal = mergeAbortSignal(controller.signal, pctx);
 
-  const handler = new Daemon(
-    mergedSignal,
-    async (pctx, payload: P) => {
-      // Abort even if handleEvent throws - this effect is single-shot, so the
-      // scope must close on the first event regardless of how it was handled.
-      try {
-        await handleEvent(pctx, payload);
-      } finally {
-        controller.abort();
-      }
-    },
-    10,
-  );
+  let aborted = false;
+  let pending: Promise<void> | null = null;
 
-  // Register on mergedSignal (a PCtx-shaped clone of pctx with SIGNAL_KEY replaced),
-  // not pctx itself - otherwise effectfulThunk's context would still carry the
-  // pre-abort signal, and nested effects would never observe this abort.
-  const ctxWithHandler = registerHandlerOnContext<PCtx, N, P>(
-    effectName,
-    handler,
-    mergedSignal,
-  );
+  const handler: AbortiveEffectHandler<P> = {
+    abort(payload: P) {
+      if (aborted) return;
+      aborted = true;
+      controller.abort();
+      // handleEvent's completion is awaited exactly once, by run()'s finally
+      // below - teardown must not also run here, or it fires twice.
+      pending = handleEvent(mergedSignal, payload);
+    },
+  };
+
+  const ctxWithHandler = registerEffectOnContext<
+    PCtx,
+    N,
+    AbortiveEffectHandler<P>
+  >(effectName, handler, mergedSignal);
 
   return {
     run: async (
       effectfulThunk: (
-        ctx: PCtx & { [K in N]: Daemon<P, PCtx> },
+        ctx: PCtx & { [K in N]: AbortiveEffectHandler<P> },
       ) => Promise<void>,
     ) => {
       try {
         await effectfulThunk(ctxWithHandler);
       } finally {
+        if (pending) await pending;
         if (teardown) teardown();
-        await handler.close();
       }
     },
   };
 }
 
 /**
- * Pushes a payload into a named abortive effect handler.
+ * Triggers the abortive effect handler registered in the context.
  *
- * The returned promise resolves once the payload is queued, not once the handler
- * has finished processing it or aborted the surrounding scope.
+ * The abort call itself is synchronous; the handler may perform async cleanup
+ * internally, but the initial trigger happens immediately.
  *
  * @template N - Symbol key used to identify the effect.
  * @template P - Payload type accepted by the effect.
  * @param ctx - Context containing the registered handler.
  * @param name - Symbol key of the handler to invoke.
  * @param payload - Payload to deliver to the handler.
- * @returns A promise that resolves when the payload has been queued.
  */
-export async function abortEffect<N extends symbol, P>(
-  ctx: { [K in N]: Daemon<P, any> },
+export function abortEffect<N extends symbol, P>(
+  ctx: { [K in N]: AbortiveEffectHandler<P> },
   name: N,
   payload: P,
-): Promise<void> {
+): void {
   const handler = mustHaveHandler(ctx, name);
-  await handler.pushEvent(payload);
+  handler.abort(payload);
 }

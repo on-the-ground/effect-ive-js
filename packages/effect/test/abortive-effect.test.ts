@@ -18,7 +18,7 @@ describe("withAbortiveEffectHandler", () => {
           calls.push({sigSrc, payload});
         },
     ).run(async (ctx) => {
-      await abortEffect(ctx, TestEffect, "hello");
+      abortEffect(ctx, TestEffect, "hello");
     });
 
     expect(calls).toHaveLength(1);
@@ -59,12 +59,10 @@ describe("withAbortiveEffectHandler", () => {
         handle(payload);
       },
     ).run(async (ctx) => {
-      await abortEffect(ctx, TestEffect, "first");
-      // abortEffect resolves once "first" is enqueued, not once handleEvent has
-      // run and aborted - give the daemon a tick to actually process it before
-      // firing "second", or this test would pass by accident regardless of order.
-      await new Promise((res) => setTimeout(res, 10));
-      await abortEffect(ctx, TestEffect, "second"); // should be ignored
+      abortEffect(ctx, TestEffect, "first");
+      // abort() flips the `aborted` guard synchronously - "second" is dropped
+      // immediately, no queue/tick to wait out anymore.
+      abortEffect(ctx, TestEffect, "second"); // should be ignored
     });
 
     expect(handle).toHaveBeenCalledOnce();
@@ -73,18 +71,16 @@ describe("withAbortiveEffectHandler", () => {
 
   it("propagates the abort to the signal seen inside effectfulThunk", async () => {
     const ctxWithSignal = withSignal(new AbortController().signal, emptyContext);
-    let sawAborted = false;
 
     await withAbortiveEffectHandler(
       ctxWithSignal,
       TestEffect,
       async () => {}
     ).run(async (ctx) => {
-      await abortEffect(ctx, TestEffect, "go");
-      await new Promise((res) => setTimeout(res, 10));
-      sawAborted = getSignal(ctx).aborted;
+      abortEffect(ctx, TestEffect, "go");
+      // controller.abort() runs synchronously inside abortEffect, so the
+      // merged signal is already aborted by the time the call returns.
+      expect(getSignal(ctx).aborted).toBe(true);
     });
-
-    expect(sawAborted).toBe(true);
   });
 });
