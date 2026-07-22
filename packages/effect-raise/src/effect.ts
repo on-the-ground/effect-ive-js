@@ -79,10 +79,12 @@ export async function withRaiseEffectHandler<
  * This will cause the nearest enclosing `withRaiseEffectHandler` to short-circuit
  * and return the given error.
  *
+ * The abort call itself is synchronous; the handler may perform async cleanup
+ * internally, but the initial trigger happens immediately.
+ *
  * @template E The error type to raise.
  * @param ctx An extended context that includes the `raise` handler.
  * @param err The error instance to raise.
- * @returns A Promise that resolves when the effect is handled.
  */
 export function raiseEffect<E extends Error>(
   ctx: { [K in typeof RaiseEffect]: AbortiveEffectHandler<E> },

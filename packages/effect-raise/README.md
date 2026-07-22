@@ -53,7 +53,7 @@ describe("raiseEffect across async call boundaries", () => {
 
     async function level3(ctx: any) {
       await delay(10);
-      await raiseEffect(ctx, new CustomError("raised at level 3"));
+      raiseEffect(ctx, new CustomError("raised at level 3"));
     }
 
     async function level2(ctx: any) {
@@ -83,18 +83,27 @@ describe("raiseEffect across async call boundaries", () => {
 
 ## 🔧 API
 
-### `withRaiseEffectHandler(pctx, effectfulThunk): Promise<E | void>`
+### `withRaiseEffectHandler(pctx, effectfulThunk, mode?): Promise<E | void>`
 
 Wraps an async computation. Allows `raiseEffect(ctx, err)` to short-circuit and return `err`.
 
 - `pctx`: a context that includes an `AbortSignal`
 - `effectfulThunk`: an async function that may raise
+- `mode`: a `RaiseMode` controlling how the raise affects the surrounding thunk (defaults to `"urgent"`)
 
-### `raiseEffect(ctx, err): Promise<void>`
+### `raiseEffect(ctx, err): void`
 
 Triggers the abortive effect named `effect_raise` with `err`.
 
 - The error will be caught by the enclosing `withRaiseEffectHandler`.
+- The call itself is synchronous.
+
+### `RaiseMode = "urgent" | "graceful"`
+
+Controls how a raise is allowed to affect the surrounding `effectfulThunk`:
+
+- **`"urgent"` (default)** - Race the raise against `effectfulThunk`. The moment an error is raised, `withRaiseEffectHandler` returns it immediately and whatever `effectfulThunk` was still doing is abandoned, not awaited. (Similar to SIGKILL)
+- **`"graceful"`** - Never abandon `effectfulThunk`. The abort signal fires the instant something is raised (so cooperative cleanup can react), but `withRaiseEffectHandler` itself waits for `effectfulThunk` to actually finish before returning the raised error. (Similar to SIGTERM)
 
 ### `Result<E> = E | void`
 

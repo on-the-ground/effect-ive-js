@@ -5,9 +5,9 @@ This package exposes small composable helpers for building effect-driven APIs wi
 ## What this package provides
 
 - `withEffectHandler(...)` for creating a proxy-backed effect handler with resumable or fire-and-forget usage.
-- `withAbortiveEffectHandler(...)` and `abortEffect(...)` for one-shot abortive effects that cancel the surrounding scope after the first event.
+- `withAbortiveEffectHandler(...)` for one-shot abortive effects that cancel the surrounding scope after the first event.
 - `effectTokenOf(...)` and the `EffectToken` / `ExpectedInterface` types for strongly typed effect keys.
-- Context helpers such as `emptyContext`, `withSignal(...)`, `registerHandlerOnContext(...)`, `registerEffectOnContext(...)`, `getSignal(...)`, and `mustHaveHandler(...)`.
+- Context helpers such as `emptyContext`, `withSignal(...)`, `registerEffectOnContext(...)`, `getSignal(...)`, and `mustHaveHandler(...)`.
 
 ## Quick example
 
@@ -40,7 +40,7 @@ await withEffectHandler(ctx, GreeterEffect, class {
 ## Abortive effect example
 
 ```ts
-import { abortEffect, emptyContext, withAbortiveEffectHandler, withSignal } from "@on-the-ground/effect";
+import { emptyContext, withAbortiveEffectHandler, withSignal } from "@on-the-ground/effect";
 
 const effectName = Symbol("effect");
 const ctx = withSignal(new AbortController().signal, emptyContext);
@@ -52,7 +52,7 @@ await withAbortiveEffectHandler(
     console.log(payload);
   },
 ).run(async (ctx) => {
-  await abortEffect(ctx, effectName, "hello");
+  ctx[effectName].abort("hello");
 });
 ```
 
