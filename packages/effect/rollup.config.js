@@ -18,13 +18,7 @@ export default [
     ],
     plugins: [
       typescript({
-        tsconfig: "./tsconfig.json",
-        noForceEmit: false,
-        outputToFilesystem: true,
-        compilerOptions: {
-          module: "ESNext",
-          target: "ES2020",
-        },
+        tsconfig: "./tsconfig.build.json",
       }),
     ],
   },
