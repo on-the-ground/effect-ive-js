@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { withAbortiveEffectHandler, abortEffect } from "../src/abortive-effect";
+import { withAbortiveEffectHandler, abortEffect } from "../src";
 import { emptyContext, getSignal, withSignal } from "../src/effect_context";
 
 const TestEffect: unique symbol = Symbol("testEffect");
@@ -12,15 +12,14 @@ describe("withAbortiveEffectHandler", () => {
     const ctxWithSignal = withSignal(signal, emptyContext);
 
     await withAbortiveEffectHandler(
-      ctxWithSignal,
-      TestEffect,
-      async (sigSrc, payload: any) => {
-        calls.push({ sigSrc, payload });
-      },
-      async (ctx) => {
-        await abortEffect(ctx, TestEffect, "hello");
-      }
-    );
+        ctxWithSignal,
+        TestEffect,
+        async (sigSrc, payload: any) => {
+          calls.push({sigSrc, payload});
+        },
+    ).run(async (ctx) => {
+      await abortEffect(ctx, TestEffect, "hello");
+    });
 
     expect(calls).toHaveLength(1);
     expect(calls[0].payload).toBe("hello");
@@ -38,9 +37,9 @@ describe("withAbortiveEffectHandler", () => {
       ctxWithSignal,
       TestEffect,
       async () => {},
-      async () => {},
+
       teardown
-    );
+    ).run(async () => {});
 
     expect(teardown).toHaveBeenCalledOnce();
   });
@@ -59,15 +58,14 @@ describe("withAbortiveEffectHandler", () => {
       async (_, payload) => {
         handle(payload);
       },
-      async (ctx) => {
-        await abortEffect(ctx, TestEffect, "first");
-        // abortEffect resolves once "first" is enqueued, not once handleEvent has
-        // run and aborted - give the daemon a tick to actually process it before
-        // firing "second", or this test would pass by accident regardless of order.
-        await new Promise((res) => setTimeout(res, 10));
-        await abortEffect(ctx, TestEffect, "second"); // should be ignored
-      }
-    );
+    ).run(async (ctx) => {
+      await abortEffect(ctx, TestEffect, "first");
+      // abortEffect resolves once "first" is enqueued, not once handleEvent has
+      // run and aborted - give the daemon a tick to actually process it before
+      // firing "second", or this test would pass by accident regardless of order.
+      await new Promise((res) => setTimeout(res, 10));
+      await abortEffect(ctx, TestEffect, "second"); // should be ignored
+    });
 
     expect(handle).toHaveBeenCalledOnce();
     expect(handle).toHaveBeenCalledWith("first");
@@ -80,13 +78,12 @@ describe("withAbortiveEffectHandler", () => {
     await withAbortiveEffectHandler(
       ctxWithSignal,
       TestEffect,
-      async () => {},
-      async (ctx) => {
-        await abortEffect(ctx, TestEffect, "go");
-        await new Promise((res) => setTimeout(res, 10));
-        sawAborted = getSignal(ctx).aborted;
-      }
-    );
+      async () => {}
+    ).run(async (ctx) => {
+      await abortEffect(ctx, TestEffect, "go");
+      await new Promise((res) => setTimeout(res, 10));
+      sawAborted = getSignal(ctx).aborted;
+    });
 
     expect(sawAborted).toBe(true);
   });

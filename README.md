@@ -66,10 +66,9 @@ await withAbortiveEffectHandler(
     withSignal(signal, {}),
     "log",
     async (signal, msg: string) => console.log(msg),
-    async (ctx) => {
+).run(async (ctx) => {
         await abortEffect(ctx, "log", "Hello, effect!");
-    }
-);
+});
 ```
 
 ---

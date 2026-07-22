@@ -1,8 +1,8 @@
 import { Daemon, mergeAbortSignal } from "@on-the-ground/daemonizer";
 import {
+  type EffectContextWithSignal,
   mustHaveHandler,
   registerHandlerOnContext,
-  type EffectContextWithSignal,
 } from "./effect_context";
 
 /**
@@ -24,17 +24,16 @@ import {
  *
  * @returns A Promise that resolves after the effectfulThunk has completed or been aborted
  */
-export async function withAbortiveEffectHandler<
+export function withAbortiveEffectHandler<
   PCtx extends EffectContextWithSignal,
   N extends symbol,
-  P
+  P,
 >(
   pctx: PCtx,
   effectName: N,
   handleEvent: (ctx: PCtx, payload: P) => Promise<void>,
-  effectfulThunk: (ctx: PCtx & { [K in N]: Daemon<P, PCtx> }) => Promise<void>,
-  teardown?: () => void
-): Promise<void> {
+  teardown?: () => void,
+) {
   const controller = new AbortController();
   const mergedSignal = mergeAbortSignal(controller.signal, pctx);
 
@@ -49,7 +48,7 @@ export async function withAbortiveEffectHandler<
         controller.abort();
       }
     },
-    10
+    10,
   );
 
   // Register on mergedSignal (a PCtx-shaped clone of pctx with SIGNAL_KEY replaced),
@@ -58,15 +57,23 @@ export async function withAbortiveEffectHandler<
   const ctxWithHandler = registerHandlerOnContext<PCtx, N, P>(
     effectName,
     handler,
-    mergedSignal
+    mergedSignal,
   );
 
-  try {
-    await effectfulThunk(ctxWithHandler);
-  } finally {
-    if (teardown) teardown();
-    await handler.close();
-  }
+  return {
+    run: async (
+      effectfulThunk: (
+        ctx: PCtx & { [K in N]: Daemon<P, PCtx> },
+      ) => Promise<void>,
+    ) => {
+      try {
+        await effectfulThunk(ctxWithHandler);
+      } finally {
+        if (teardown) teardown();
+        await handler.close();
+      }
+    },
+  };
 }
 
 /**
@@ -87,7 +94,7 @@ export async function withAbortiveEffectHandler<
 export async function abortEffect<N extends symbol, P>(
   ctx: { [K in N]: Daemon<P, any> },
   name: N,
-  payload: P
+  payload: P,
 ): Promise<void> {
   const handler = mustHaveHandler(ctx, name);
   await handler.pushEvent(payload);
