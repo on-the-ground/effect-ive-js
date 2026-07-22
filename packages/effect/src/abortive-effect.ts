@@ -17,8 +17,8 @@ import {
  *
  * @param pctx - The parent context, which must already include an AbortSignal
  * @param effectName - A unique string name for the effect within the context
- * @param handleEvent - The effect handler function; receives the AbortSignal and payload,
- *                      and aborts the effect scope after execution
+ * @param handleEvent - The effect handler function; receives the context and payload.
+ *                      The effect scope is aborted once this returns or throws.
  * @param effectfulThunk - A function that performs async logic using the extended context
  * @param teardown - (Optional) Cleanup function to be called after the thunk finishes or is aborted
  *
@@ -41,16 +41,24 @@ export async function withAbortiveEffectHandler<
   const handler = new Daemon(
     mergedSignal,
     async (pctx, payload: P) => {
-      await handleEvent(pctx, payload);
-      controller.abort();
+      // Abort even if handleEvent throws - this effect is single-shot, so the
+      // scope must close on the first event regardless of how it was handled.
+      try {
+        await handleEvent(pctx, payload);
+      } finally {
+        controller.abort();
+      }
     },
     10
   );
 
+  // Register on mergedSignal (a PCtx-shaped clone of pctx with SIGNAL_KEY replaced),
+  // not pctx itself - otherwise effectfulThunk's context would still carry the
+  // pre-abort signal, and nested effects would never observe this abort.
   const ctxWithHandler = registerHandlerOnContext<PCtx, N, P>(
     effectName,
     handler,
-    pctx
+    mergedSignal
   );
 
   try {
@@ -72,7 +80,9 @@ export async function withAbortiveEffectHandler<
  * @param name - The effect name (key) to invoke
  * @param payload - The payload to deliver to the handler
  *
- * @returns A Promise that resolves once the handler has processed the event
+ * @returns A Promise that resolves once the payload is enqueued - NOT once
+ *          `handleEvent` has finished processing it. Don't assume the handler's
+ *          side effects (or the abort itself) have happened right after this resolves.
  */
 export async function abortEffect<N extends symbol, P>(
   ctx: { [K in N]: Daemon<P, any> },
